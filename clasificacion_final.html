@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificación PCLiga</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuración de Tailwind y fuente Inter -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc;
+        }
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .rotated-arrow {
+            transition: transform 0.3s;
+        }
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+        /* Estilos específicos para la clasificación */
+        /* Aplicamos el borde izquierdo a todas las filas con la clase rank-status */
+        .rank-status {
+            border-left-width: 4px;
+            border-left-style: solid;
+            transition: background-color 0.2s, border-left-color 0.2s;
+        }
+        
+        .rank-1-8 { 
+            background-color: #e0f2f1; /* Teal-50 */
+            border-left-color: #009688; /* Teal / Clasificado */
+        } 
+        .rank-9-24 { 
+            background-color: #fffde7; /* Yellow-50 */
+            border-left-color: #ffc107; /* Yellow / Repesca */
+        } 
+        .rank-25-plus { 
+            background-color: #fce4e4; /* Red-50 */
+            border-left-color: #f44336; /* Red / Eliminado */
+        } 
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-blue-800 tracking-tight text-shadow">
+                Mundial Sudáfrica XXV
+            </h1>
+            <p class="text-xl text-gray-600 mt-2">Temporada 2025</p>
+        </header>
+
+        <!-- Contenedor principal para la tabla y resultados -->
+        <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- Columna de Clasificación (3/4 en escritorio) -->
+            <section class="lg:col-span-3 bg-white p-6 rounded-xl shadow-2xl h-fit" id="classification-section">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">Tabla de Selecciones</h2>
+                
+                <!-- Leyenda de Clasificación -->
+                <div class="flex flex-wrap gap-4 mb-4 text-sm">
+                    <span class="flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-teal-500 mr-2"></span>
+                        <span class="text-gray-700 font-semibold">1-8: Clasificación a Octavos</span>
+                    </span>
+                    <span class="flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-amber-500 mr-2"></span>
+                        <span class="text-gray-700 font-semibold">9-24: Repesca</span>
+                    </span>
+                    <span class="flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+                        <span class="text-gray-700 font-semibold">25+: Eliminado</span>
+                    </span>
+                </div>
+
+                <p class="text-xs text-gray-500 mb-4">
+                    **Criterio de Orden (Prioridad):** Pts > DG(S) > GF(S) > DG(R) > GF(R)
+                </p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-blue-50">
+                            <tr>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg">#</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Selección</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">PJ</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">G</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">E</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">P</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Goles a Favor (Club Wins)">GF (S)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Goles en Contra (Club Wins)">GC (S)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Diferencia de Goles (Club Wins)">DG (S)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Goles a Favor (Reales)">GF (R)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Goles en Contra (Reales)">GC (R)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Diferencia de Goles (Reales)">DG (R)</th>
+                                <th class="px-3 py-3 text-center text-sm font-bold text-gray-800 uppercase tracking-wider rounded-tr-lg">Pts</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="classification-table-body">
+                            <tr><td colspan="13" class="py-4 text-center text-gray-500">Cargando clasificación...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Columna de Resultados (1/4 en escritorio) -->
+            <section class="lg:col-span-1 bg-white p-6 rounded-xl shadow-2xl h-fit" id="results-section">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">Resultados</h2>
+                
+                <div id="jornada-controls" class="flex justify-between items-center mb-4">
+                    <!-- Botón para ir a la jornada ANTERIOR (más antigua) -->
+                    <button id="prev-btn" onclick="changeJornada(1)" class="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-lg shadow hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        &larr; Anterior
+                    </button>
+                    <span id="current-jornada-title" class="text-lg font-bold text-gray-700"></span>
+                    <!-- Botón para ir a la jornada SIGUIENTE (más reciente) -->
+                    <button id="next-btn" onclick="changeJornada(-1)" class="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-lg shadow hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        Siguiente &rarr;
+                    </button>
+                </div>
+
+                <div id="match-results-list" class="space-y-6">
+                    <!-- Resultados inyectados por JS -->
+                    <p class="text-center text-gray-500">Cargando resultados...</p>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        const TEAMS_CONFIG = [
+    {
+        "name": "Alemania",
+        "clubs": [
+            "VfB Pinet",
+            "Dinastia FC",
+            "Porlaromy",
+            "Clembuterol",
+            "Puskas CF",
+            "CASPA_FC",
+            "PSOE",
+            "C.F.Català",
+            "F.C. RANAS",
+            "Tarsius",
+            "taxi C.F.",
+            "Abelinos FC",
+            "verdiblanco",
+            "CSAndres",
+            "malagon",
+            "AriasMontano",
+            "The Hellcats",
+            "Lubeck",
+            "bayer spanis",
+            "INOX FC",
+            "Green devils",
+            "Mujeresrobot",
+            "perroflauta",
+            "Castellon U.",
+            "Dresdner SC",
+            "Base 2",
+            "BirraJuniors",
+            "Araujas FC"
+        ]
+    },
+    {
+        "name": "Argentina",
+        "clubs": [
+            "GusanosButia",
+            "Atl. Tradis",
+            "DeportivoHur",
+            "Narón Utd.",
+            "At. Edin",
+            "FC.Petrus",
+            "Real Munilla",
+            "Espanyol",
+            "Pulpillos FC",
+            "Real Ravia",
+            "Barrabrava",
+            "MARAS VILLA",
+            "Gusa C.F.",
+            "Atromitos",
+            "Torne F.C.",
+            "Urquiza F.C.",
+            "Arenas F.C.",
+            "ALHAMBRA",
+            "R..ZARAGOZA",
+            "CHOPO CITY",
+            "daniesFC",
+            "CD Tecca",
+            "Platero",
+            "Ermitilla",
+            "Sport Boys"
+        ]
+    },
+    {
+        "name": "Belgica",
+        "clubs": [
+            "Rosario Ar",
+            "Batet",
+            "Squirrel F.C",
+            "TINTIN",
+            "Joint Boys",
+            "C.E. Mataro",
+            "Cen. Lechera",
+            "Cuellar",
+            "ZOZO Dj",
+            "Belgium FC",
+            "PEPELUIS F.C",
+            "Nest 4.0",
+            "Fofitos",
+            "Depor73",
+            "Galledas FC",
+            "POCHO F.C",
+            "Sevilla Atco",
+            "CD Bergen",
+            "ISS-Pro",
+            "PiCENA FC",
+            "Guadalquivir",
+            "LE HAVRE",
+            "F.C. Sosa",
+            "EDelicias",
+            "Llanes F.C.",
+            "segafu",
+            "Confetti FC",
+            "C.T.E",
+            "VINAROS CF",
+            "Princess UCF",
+            "C.X Sanxenxo"
+        ]
+    },
+    {
+        "name": "Brasil",
+        "clubs": [
+            "TrainingTime",
+            "ARCANGEL",
+            "F.C.Masaos",
+            "UDFurtaPeras",
+            "La Eternidad",
+            "The Westford",
+            "Muchachos",
+            "CF NouBarris",
+            "JositoTeam",
+            "PCaio",
+            "Kronos C.F.",
+            "canibal",
+            "Los Chipis",
+            "Gen2012 CF",
+            "Cegato",
+            "Romario",
+            "Bismarck",
+            "Gofio F.C",
+            "Drazycbull",
+            "PSG CITY",
+            "Kimba F.C",
+            "PadelFactory",
+            "Vosnaube",
+            "Esperanza",
+            "Laguna City",
+            "10JM10",
+            "Norisa F.C",
+            "Algiros FC"
+        ]
+    },
+    {
+        "name": "Bulgaria",
+        "clubs": [
+            "Zipo 10",
+            "Vigo Palace",
+            "Girona F.C",
+            "MANJULA",
+            "Hormazuela",
+            "SASIJAINKO",
+            "Ochate CF",
+            "Aloha",
+            "Castelao",
+            "Nacional FC",
+            "CF BAILEN",
+            "VIDIN",
+            "algarense",
+            "ROLPOWER",
+            "Coronitas",
+            "Vilamarin FC",
+            "Catral F.C.",
+            "Madriz Real",
+            "R.Vialnorte"
+        ]
+    },
+    {
+        "name": "Chile",
+        "clubs": [
+            "Intxaur",
+            "Protomech FC",
+            "Martorell",
+            "Barrabases",
+            "Genova Triva",
+            "Wagen FC",
+            "CASTELL0N CD",
+            "Garrulaxe",
+            "ESPADA F.C.",
+            "Guanarteme",
+            "Anita FC",
+            "pure hot",
+            "Real Perlio",
+            "COBRELOA",
+            "Galactik Foo",
+            "canariaslibr",
+            "Carniceros",
+            "Tiana F.C",
+            "A RUA"
+        ]
+    },
+    {
+        "name": "Colombia",
+        "clubs": [
+            "Envigado",
+            "Lost2dRiver",
+            "GuaCaMaYoS",
+            "xInfernox",
+            "Union",
+            "Phoenix FC",
+            "Melilla FC",
+            "At. Fontun",
+            "Astracan",
+            "Rojo Memoria",
+            "La Barca",
+            "Medellin FC",
+            "PINHEIRO",
+            "AvalancH",
+            "ValladolidFC",
+            "Santibanez",
+            "BENEMERITALP",
+            "CHACALES F.C",
+            "C. Vigo",
+            "Beas CF",
+            "RalesCF"
+        ]
+    },
+    {
+        "name": "Corea",
+        "clubs": [
+            "La elite",
+            "Parleste FC",
+            "Pto Sagunto",
+            "jionde",
+            "Bayonja FC",
+            "Julang",
+            "Meristem U",
+            "New Pdrajs",
+            "Pardaleras",
+            "Notinatex",
+            "La Noal",
+            "Motocross FC",
+            "C.D.Lobon",
+            "Pilsen FC",
+            "UD SAN COSME",
+            "Kurokami",
+            "Icheon Unite",
+            "Saguntino"
+        ]
+    },
+    {
+        "name": "Costa Rica",
+        "clubs": [
+            "The Kies",
+            "los peques",
+            "Eresma C.F",
+            "ikeryna",
+            "Stralis FC",
+            "the best",
+            "Bsquad",
+            "martires",
+            "Ciudad Sur",
+            "Metalico Red",
+            "C.D. Lugo",
+            "Alepucela",
+            "latinos",
+            "le petit",
+            "RACING RASTA",
+            "FC Baraher",
+            "Regalandia",
+            "AE Prat",
+            "Pantera Rosa"
+        ]
+    },
+    {
+        "name": "Dinamarca",
+        "clubs": [
+            "Ribe Utd",
+            "Kamchatka",
+            "UD Sephiro",
+            "PoliAvutarda",
+            "Floren Team",
+            "Ascoli",
+            "VamosLega",
+            "Billabona",
+            "Normandos",
+            "MondegueroFC",
+            "RayoVinichus",
+            "RCD ESPANYOL",
+            "Corvera FC",
+            "Templarios",
+            "Warrior FC",
+            "Navajas Team",
+            "Sanra Team",
+            "2275A41",
+            "Caraiddilea",
+            "R. Zurbanita"
+        ]
+    },
+    {
+        "name": "Ee.Uu.",
+        "clubs": [
+            "VALLE SFC",
+            "Orlando red",
+            "Los Jedis",
+            "Rapapolvo FC",
+            "Los Peluches",
+            "Flop YNWA",
+            "BELTEAM",
+            "FC PICASSO",
+            "Bichi F.C.",
+            "New Balafia",
+            "monito",
+            "Culero F.C.",
+            "AlbertVille",
+            "Juventude",
+            "lucens",
+            "Bald FC",
+            "Los Trykys",
+            "Pucelanos",
+            "Garrote CF",
+            "YALMAKAN FC",
+            "Hachis",
+            "Fiore Ainhoa",
+            "MMGVOSFC",
+            "Hawaira FC",
+            "Migthy Ducks",
+            "ARRUA TEAM",
+            "Cartagonova",
+            "Scorpions"
+        ]
+    },
+    {
+        "name": "Eslovenia",
+        "clubs": [
+            "Espartanos",
+            "slavenzahovi",
+            "Boneco093",
+            "Malaguti F.C",
+            "TUSALANA",
+            "A.D. Ceuta",
+            "Giulia Almer",
+            "NK Zvezda",
+            "LUKINI",
+            "ATL.Bahia",
+            "Zarragozza",
+            "CDCastellon",
+            "Altabix",
+            "Scorpia",
+            "UE RIBA",
+            "ThE hErOe",
+            "MaLi FC",
+            "DOSSIS.ES",
+            "FC Moron",
+            "AntiIndepe",
+            "Olimpija Aga",
+            "Partizan Vit",
+            "ZARAGOZA"
+        ]
+    },
+    {
+        "name": "España",
+        "clubs": [
+            "Gran Canaria",
+            "Worms FC",
+            "SD Riazoas",
+            "Talavera CF",
+            "SrMortred",
+            "Jabberwocky",
+            "mesqunclub",
+            "AMANDA98",
+            "4VKS",
+            "Andalus C.D.",
+            "Virtualmedia",
+            "La Legion",
+            "fc gesio",
+            "CHATILLA",
+            "TroyanoX CF",
+            "JMMG",
+            "HUSH UTD",
+            "Cachimbas FC",
+            "FCBLegends",
+            "Fc Rambolete",
+            "Murcia 2019",
+            "EspanyolST",
+            "BiR FC",
+            "FC basauri",
+            "Bizkaia F.C.",
+            "AVISPAS FC",
+            "Real Branir",
+            "Atl. Astetas",
+            "ALOFC",
+            "VPG Spain",
+            "LosCojos",
+            "Juv. Estadio",
+            "BLACKMAMBAFC",
+            "Vaskitos FC",
+            "Hortaleza FC",
+            "Caramel Team"
+        ]
+    },
+    {
+        "name": "Finlandia",
+        "clubs": [
+            "flaret",
+            "Trivium",
+            "IFK Nordiska",
+            "Ituteam",
+            "puchero CF",
+            "oviedopool",
+            "ManchEagles",
+            "SUPERRATON",
+            "Badalona",
+            "Plus Ultra",
+            "union tres",
+            "lugopool",
+            "OVYM FC",
+            "Pink Floyd",
+            "Estepeno",
+            "Villa FC",
+            "Palermitano",
+            "Zebiya CF",
+            "Panky",
+            "Radiactivo",
+            "CD GUADAIRA",
+            "Jaime CF",
+            "Lugones FC"
+        ]
+    },
+    {
+        "name": "Francia",
+        "clubs": [
+            "CP Monte",
+            "Box Lunch",
+            "añuroc al",
+            "Puigvertenc",
+            "O Mapelli",
+            "buitres",
+            "UTOPIC",
+            "ELCHE atl",
+            "Valdastilla",
+            "ENFAF",
+            "Cassuals",
+            "Monbol",
+            "Montpellier",
+            "Iberia",
+            "C.D.Percha",
+            "Real13toros",
+            "RCD Mallorca",
+            "RadioTimoteo",
+            "St Andreas"
+        ]
+    },
+    {
+        "name": "Holanda",
+        "clubs": [
+            "Lebowsky FC",
+            "C.D. Aragon",
+            "Ath. Laguna",
+            "Errantes F.C",
+            "Palestina FC",
+            "Jambos Locos",
+            "CD Dimoni",
+            "Volendam FC",
+            "MACHUPICHUS",
+            "circulo B",
+            "New Santaka",
+            "Benavente FC",
+            "Club Jamaica",
+            "MUFC Champion",
+            "U. Viera",
+            "maikelfc",
+            "Salami Opsta",
+            "Alcor City",
+            "Ohnigres FC",
+            "Quilmes A.C.",
+            "PERDIZ ROJA",
+            "Petardos FC",
+            "Symmachiiari",
+            "AGRUPPLANT",
+            "CD Kart H.",
+            "Walpur FC",
+            "V. A. FC",
+            "Valderaduey",
+            "HAPPY DAY",
+            "ViejaGuardia",
+            "tito listo",
+            "Los Kevins",
+            "RH27 F.C",
+            "CLUB TOROS",
+            "Mambo F.C.",
+            "Joveixam"
+        ]
+    },
+    {
+        "name": "Inglaterra",
+        "clubs": [
+            "Huesconsin",
+            "Inter Alcala",
+            "CF Se queda",
+            "The boss",
+            "Pakete.f.c",
+            "shaqisback",
+            "HeAvYMeTaL",
+            "munster",
+            "Elotto",
+            "CHUPU",
+            "Racing As",
+            "Salford FC",
+            "Pel Droed",
+            "Martin FC",
+            "S. Marcial",
+            "Atlco de Sir",
+            "FC Moa",
+            "Analea F.C",
+            "Trapiche",
+            "defectos",
+            "Tartessos CF",
+            "MadridF.C",
+            "ZURICK",
+            "Giluma",
+            "Yoyix FC"
+        ]
+    },
+    {
+        "name": "Japon",
+        "clubs": [
+            "Jager United",
+            "tetoteam",
+            "Residuales",
+            "Montoya Ut",
+            "DRAGONBOL",
+            "Charmed",
+            "Masava",
+            "Risitas CF",
+            "F.C.MONCHO",
+            "Troyanos FC",
+            "Buambilla",
+            "Toho F.C.",
+            "Kadoc FC",
+            "Niupi S.C",
+            "Real Sancla",
+            "Vegan FK",
+            "NGM FC",
+            "Rodales F.C."
+        ]
+    },
+    {
+        "name": "Paraguay",
+        "clubs": [
+            "Diplo F.C.",
+            "VodkaLimon",
+            "Dep. Cigota",
+            "Big Fish",
+            "C.D.Tenerife",
+            "iguasitges",
+            "Inde FC",
+            "Barderos FC",
+            "Majeroro",
+            "MostolesCity",
+            "Guarani"
+        ]
+    },
+    {
+        "name": "Peru",
+        "clubs": [
+            "Verdes fc",
+            "RUMBERAS",
+            "trivinet.com",
+            "Armrodgon",
+            "punta F.C.",
+            "Fenix",
+            "RCRH1889",
+            "BM. CDL",
+            "Vet Team",
+            "CFS San Blas",
+            "kakain c.f",
+            "KANEKO",
+            "Craker Team",
+            "TRIGUEROS",
+            "Pachuca",
+            "Shin Chan",
+            "Union Chile",
+            "Puntasolymar",
+            "FIRO"
+        ]
+    },
+    {
+        "name": "Portugal",
+        "clubs": [
+            "Werewolves",
+            "FC Algeciras",
+            "San Anton",
+            "InterStar",
+            "Luismi F.C",
+            "Humboldt FC",
+            "BOKESTARS",
+            "EgaraFc",
+            "Fouzinho FC",
+            "kozel",
+            "Mangakas F.C",
+            "CARTAGINES",
+            "Lentiscales",
+            "CD Salford",
+            "VCF Valencia",
+            "Famelicao s",
+            "Bulletmen CF",
+            "MAGALLANES",
+            "Cartago Nova",
+            "Atl.Limon"
+        ]
+    },
+    {
+        "name": "Rep. Irlanda",
+        "clubs": [
+            "SHOHOKU",
+            "Rara Avis",
+            "Velez",
+            "Hospitalet",
+            "F.C.B. FISH",
+            "FC MAXIM05",
+            "JORDIER",
+            "ALL-BCN",
+            "Tabarka Pts",
+            "Ryans Team",
+            "Ansel",
+            "SEMBRAOS",
+            "Laboral",
+            "Galvan XIII",
+            "RHESUS FC",
+            "UD CANARIAS",
+            "Goll"
+        ]
+    },
+    {
+        "name": "Rumania",
+        "clubs": [
+            "The only one",
+            "Los Boliches",
+            "Los Choches",
+            "CHEEKS",
+            "Xomi",
+            "SD Burela",
+            "Allstar S",
+            "Rozam uda",
+            "Whiteam",
+            "D. Cordoba",
+            "Parleño",
+            "Yerai Force",
+            "LZP FC",
+            "PamantulPlat",
+            "Steaua daqui",
+            "Asturcias FC"
+        ]
+    },
+    {
+        "name": "Rusia",
+        "clubs": [
+            "NakedCity",
+            "F.C.Sharkers",
+            "kanpest",
+            "The Tenors",
+            "Sevilla At",
+            "Almodovar CF",
+            "Rointe UD",
+            "Dalt la Vila",
+            "C.F. ALMENAR",
+            "el huracan",
+            "lagarch",
+            "San Telmo FC",
+            "Rubin Kazan",
+            "C.Seversky"
+        ]
+    },
+    {
+        "name": "Sudafrica",
+        "clubs": [
+            "Kaizer FC",
+            "Aspire FC",
+            "R.Quimeras",
+            "Coca Jrs.",
+            "Los Mochil",
+            "EuroCity",
+            "Carajillo",
+            "TAZZX",
+            "Guadiana",
+            "Oto FC",
+            "Castillo FC",
+            "La Sierra"
+        ]
+    },
+    {
+        "name": "Suecia",
+        "clubs": [
+            "SD Brion",
+            "The Cannibal",
+            "Raudex",
+            "Laboure CF",
+            "EL PUERTO",
+            "Águilas",
+            "Vasa FC",
+            "CSKargos",
+            "Mascleta",
+            "Pachanga F.C",
+            "Carcedo",
+            "Slagtra VCF",
+            "FC.PLASENCIA",
+            "Black Zurich",
+            "AS FC",
+            "Torreta C.F.",
+            "Nomadas FC",
+            "Carp C.F",
+            "Puxasturies",
+            "Cadi CF",
+            "CD Odelot",
+            "ISLA MAGICA",
+            "Hualaan MT"
+        ]
+    },
+    {
+        "name": "Uruguay",
+        "clubs": [
+            "Sabadell F.C",
+            "balmes.c.f",
+            "Wataru CF",
+            "Piratas",
+            "URUGUAYOS FC",
+            "Helados FC",
+            "Meque",
+            "CA Fierro",
+            "CD EL RUBIO",
+            "Pepineta",
+            "HAMBURGO FC",
+            "Bismark.c.f",
+            "RIVER CLUB",
+            "Noufib",
+            "Timolandia"
+        ]
+    },
+    {
+        "name": "Yugoslavia",
+        "clubs": [
+            "Berdica Fc",
+            "FERZA TEAM",
+            "MugiwaraTeam",
+            "Uchi-mata",
+            "skuirlys 2.0",
+            "Molins C.F.",
+            "Tifosi FC",
+            "At.Eivissenc",
+            "Vargas Team",
+            "ROLARJO",
+            "Atl. Plines",
+            "Cisterniga",
+            "Red Xhenakes",
+            "Liverfull",
+            "US Kanari",
+            "Ass Hair C.D",
+            "Resacon",
+            "Triana F.C.",
+            "Patascombro",
+            "Plava Zvezda",
+            "Salinas City",
+            "CLAUSAN FC"
+        ]
+    }
+];
+        const MATCH_RESULTS = [
+    {
+        "local": "Local",
+        "gl": 0,
+        "gv": 0,
+        "visit": "Visitante",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Jambos Locos",
+        "gl": 0,
+        "gv": 2,
+        "visit": "Sabadell F.C",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "C.D. Aragon",
+        "gl": 2,
+        "gv": 0,
+        "visit": "Meque",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Errantes F.C",
+        "gl": 1,
+        "gv": 1,
+        "visit": "balmes.c.f",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Lebowsky FC",
+        "gl": 1,
+        "gv": 1,
+        "visit": "Piratas",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "CD Dimoni",
+        "gl": 1,
+        "gv": 1,
+        "visit": "Wataru CF",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "mesqunclub",
+        "gl": 0,
+        "gv": 0,
+        "visit": "Dinastia FC",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Gran Canaria",
+        "gl": 1,
+        "gv": 1,
+        "visit": "Clembuterol",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Jabberwocky",
+        "gl": 0,
+        "gv": 0,
+        "visit": "Puskas CF",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Talavera CF",
+        "gl": 3,
+        "gv": 0,
+        "visit": "CASPA_FC",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "4VKS",
+        "gl": 1,
+        "gv": 0,
+        "visit": "Porlaromy",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Melilla FC",
+        "gl": 0,
+        "gv": 1,
+        "visit": "Batet",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Phoenix FC",
+        "gl": 1,
+        "gv": 3,
+        "visit": "C.E. Mataro",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "GuaCaMaYoS",
+        "gl": 0,
+        "gv": 1,
+        "visit": "TINTIN",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Envigado",
+        "gl": 0,
+        "gv": 2,
+        "visit": "Rosario Ar",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Lost2dRiver",
+        "gl": 1,
+        "gv": 0,
+        "visit": "Cuellar",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "GusanosButia",
+        "gl": 1,
+        "gv": 2,
+        "visit": "CF Se queda",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Atl. Tradis",
+        "gl": 1,
+        "gv": 0,
+        "visit": "Inter Alcala",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "DeportivoHur",
+        "gl": 3,
+        "gv": 1,
+        "visit": "Pakete.f.c",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Narón Utd.",
+        "gl": 0,
+        "gv": 3,
+        "visit": "Huesconsin",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "FC.Petrus",
+        "gl": 0,
+        "gv": 3,
+        "visit": "The boss",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Werewolves",
+        "gl": 0,
+        "gv": 0,
+        "visit": "Stralis FC",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Luismi F.C",
+        "gl": 0,
+        "gv": 2,
+        "visit": "The Kies",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "InterStar",
+        "gl": 0,
+        "gv": 0,
+        "visit": "ikeryna",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Humboldt FC",
+        "gl": 1,
+        "gv": 3,
+        "visit": "Eresma C.F",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "FC Algeciras",
+        "gl": 1,
+        "gv": 1,
+        "visit": "los peques",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Velez",
+        "gl": 2,
+        "gv": 1,
+        "visit": "O Mapelli",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "F.C.B. FISH",
+        "gl": 0,
+        "gv": 1,
+        "visit": "añuroc al",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Rara Avis",
+        "gl": 1,
+        "gv": 3,
+        "visit": "Box Lunch",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "FC MAXIM05",
+        "gl": 1,
+        "gv": 3,
+        "visit": "CP Monte",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "SHOHOKU",
+        "gl": 0,
+        "gv": 2,
+        "visit": "Puigvertenc",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Barrabases",
+        "gl": 1,
+        "gv": 1,
+        "visit": "Dep. Cigota",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Galactik Foo",
+        "gl": 1,
+        "gv": 0,
+        "visit": "Inde FC",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Martorell",
+        "gl": 1,
+        "gv": 2,
+        "visit": "Diplo F.C.",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "ESPADA F.C.",
+        "gl": 2,
+        "gv": 2,
+        "visit": "Barderos FC",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Protomech FC",
+        "gl": 0,
+        "gv": 0,
+        "visit": "VodkaLimon",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "MugiwaraTeam",
+        "gl": 0,
+        "gv": 1,
+        "visit": "flaret",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "skuirlys 2.0",
+        "gl": 1,
+        "gv": 0,
+        "visit": "ManchEagles",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "FERZA TEAM",
+        "gl": 1,
+        "gv": 0,
+        "visit": "oviedopool",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Tifosi FC",
+        "gl": 1,
+        "gv": 0,
+        "visit": "Ituteam",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Berdica Fc",
+        "gl": 0,
+        "gv": 1,
+        "visit": "Trivium",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "SD Burela",
+        "gl": 1,
+        "gv": 2,
+        "visit": "Girona F.C",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Whiteam",
+        "gl": 0,
+        "gv": 2,
+        "visit": "MANJULA",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "CHEEKS",
+        "gl": 2,
+        "gv": 1,
+        "visit": "Aloha",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Xomi",
+        "gl": 1,
+        "gv": 2,
+        "visit": "Vigo Palace",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Los Boliches",
+        "gl": 1,
+        "gv": 2,
+        "visit": "Zipo 10",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "A.D. Ceuta",
+        "gl": 1,
+        "gv": 1,
+        "visit": "Armrodgon",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Malaguti F.C",
+        "gl": 1,
+        "gv": 1,
+        "visit": "RUMBERAS",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "NK Zvezda",
+        "gl": 1,
+        "gv": 1,
+        "visit": "Verdes fc",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Giulia Almer",
+        "gl": 2,
+        "gv": 1,
+        "visit": "punta F.C.",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "DOSSIS.ES",
+        "gl": 1,
+        "gv": 0,
+        "visit": "trivinet.com",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Bayonja FC",
+        "gl": 0,
+        "gv": 1,
+        "visit": "Los Peluches",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Parleste FC",
+        "gl": 1,
+        "gv": 0,
+        "visit": "FC PICASSO",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Pto Sagunto",
+        "gl": 2,
+        "gv": 2,
+        "visit": "VALLE SFC",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "jionde",
+        "gl": 2,
+        "gv": 1,
+        "visit": "Orlando red",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "La elite",
+        "gl": 2,
+        "gv": 0,
+        "visit": "Rapapolvo FC",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Normandos",
+        "gl": 0,
+        "gv": 1,
+        "visit": "TrainingTime",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Floren Team",
+        "gl": 0,
+        "gv": 1,
+        "visit": "ARCANGEL",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Ribe Utd",
+        "gl": 1,
+        "gv": 0,
+        "visit": "CF NouBarris",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "VamosLega",
+        "gl": 0,
+        "gv": 1,
+        "visit": "UDFurtaPeras",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Kamchatka",
+        "gl": 1,
+        "gv": 0,
+        "visit": "F.C.Masaos",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "The Cannibal",
+        "gl": 3,
+        "gv": 0,
+        "visit": "Rointe UD",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Laboure CF",
+        "gl": 2,
+        "gv": 1,
+        "visit": "kanpest",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "SD Brion",
+        "gl": 1,
+        "gv": 0,
+        "visit": "F.C.Sharkers",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Águilas",
+        "gl": 0,
+        "gv": 0,
+        "visit": "NakedCity",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "EL PUERTO",
+        "gl": 1,
+        "gv": 2,
+        "visit": "The Tenors",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Kaizer FC",
+        "gl": 1,
+        "gv": 3,
+        "visit": "Montoya Ut",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "R.Quimeras",
+        "gl": 1,
+        "gv": 1,
+        "visit": "Residuales",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "TAZZX",
+        "gl": 0,
+        "gv": 1,
+        "visit": "Jager United",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Coca Jrs.",
+        "gl": 1,
+        "gv": 2,
+        "visit": "tetoteam",
+        "jornada": 1,
+        "group": null
+    },
+    {
+        "local": "Los Mochil",
+        "gl": 1,
+        "gv": 1,
+        "visit": "DRAGONBOL",
+        "jornada": 1,
+        "group": null
+    }
+];
+
+        // --- VARIABLES GLOBALES DE ESTADO ---
+        let clubToSelectionMap = {};
+        let selectionMatchGoalsCache = {}; // Cache para resultados de Selecciones
+        let clubResultsByJornadaCache = {}; // Cache para resultados por jornada
+        let sortedJornadas = []; // Array de números de jornada ordenado (descendente)
+        let currentJornadaIndex = 0; // Índice de la jornada actual a mostrar (0 es la más reciente)
+
+        // --- FUNCIÓN DE SETUP INICIAL ---
+        function setupData() {
+            TEAMS_CONFIG.forEach(selection => {
+                selection.clubs.forEach(club => {
+                    clubToSelectionMap[club.trim()] = selection.name.trim();
+                });
+            });
+        }
+
+        /**
+         * Obtiene el nombre de la Selección a la que pertenece un club.
+         */
+        function getSelectionByClub(clubName) {
+            return clubToSelectionMap[clubName.trim()] || 'Desconocido';
+        }
+
+        /**
+         * Calcula la clasificación y los resultados agregados.
+         * Devuelve un objeto con la clasificación final y los resultados agrupados.
+         */
+        function calculateStats() {
+            // Si ya calculamos, usamos el cache (optimización)
+            if (sortedJornadas.length > 0) {
+                return { 
+                    finalClassification: getClassificationArray(selectionMatchGoalsCache), 
+                    clubResultsByJornada: clubResultsByJornadaCache, 
+                    selectionMatchGoals: selectionMatchGoalsCache 
+                };
+            }
+            
+            const selectionMatchGoals = {}; 
+            const clubResultsByJornada = {}; 
+
+            // 1. Agregación de resultados de clubes a nivel de Selección
+            MATCH_RESULTS.forEach(match => {
+                const homeSel = getSelectionByClub(match.local);
+                const awaySel = getSelectionByClub(match.visit);
+                const gL = match.gl;
+                const gV = match.gv;
+                const jornada = match.jornada;
+
+                if (homeSel === 'Desconocido' || awaySel === 'Desconocido' || homeSel === awaySel) {
+                    return;
+                }
+
+                // Determinar el resultado del partido de club
+                const homeClubWin = gL > gV ? 1 : 0;
+                const awayClubWin = gV > gL ? 1 : 0;
+                
+                // Inicializar estructuras
+                selectionMatchGoals[homeSel] = selectionMatchGoals[homeSel] || {};
+                selectionMatchGoals[awaySel] = selectionMatchGoals[awaySel] || {};
+                
+                const initMatchStats = { Wins_S: 0, Wins_C: 0, Total_GF: 0, Total_GC: 0 };
+                selectionMatchGoals[homeSel][awaySel] = selectionMatchGoals[homeSel][awaySel] || { ...initMatchStats };
+                selectionMatchGoals[awaySel][homeSel] = selectionMatchGoals[awaySel][homeSel] || { ...initMatchStats };
+
+                // Acumular WINS y Goles para el enfrentamiento Selección Local vs Selección Visitante
+                selectionMatchGoals[homeSel][awaySel].Wins_S += homeClubWin;
+                selectionMatchGoals[homeSel][awaySel].Wins_C += awayClubWin;
+                selectionMatchGoals[homeSel][awaySel].Total_GF += gL; 
+                selectionMatchGoals[homeSel][awaySel].Total_GC += gV; 
+                
+                // Acumular WINS y Goles para el enfrentamiento Selección Visitante vs Selección Local (vista inversa)
+                selectionMatchGoals[awaySel][homeSel].Wins_S += awayClubWin;
+                selectionMatchGoals[awaySel][homeSel].Wins_C += homeClubWin;
+                selectionMatchGoals[awaySel][homeSel].Total_GF += gV; 
+                selectionMatchGoals[awaySel][homeSel].Total_GC += gL;
+                
+                // Guardar los resultados del club para la visualización por jornada
+                const matchDisplayData = { 
+                    jornada: jornada, 
+                    local: match.local, 
+                    gl: gL, 
+                    gv: gV, 
+                    visit: match.visit, 
+                    homeSel: homeSel, 
+                    awaySel: awaySel 
+                };
+                
+                clubResultsByJornada[jornada] = clubResultsByJornada[jornada] || [];
+                clubResultsByJornada[jornada].push(matchDisplayData);
+            });
+            
+            // 2. Almacenar en cache
+            selectionMatchGoalsCache = selectionMatchGoals;
+            clubResultsByJornadaCache = clubResultsByJornada;
+            
+            // 3. Obtener clasificación ordenada
+            const finalClassification = getClassificationArray(selectionMatchGoals);
+
+            return { finalClassification, clubResultsByJornada, selectionMatchGoals };
+        }
+
+        /**
+         * Procesa el objeto selectionMatchGoals para obtener el array de estadísticas ordenado.
+         */
+        function getClassificationArray(goalsData) {
+            const selectionStats = {};
+            const selectionNames = TEAMS_CONFIG.map(t => t.name.trim());
+            
+            selectionNames.forEach(selName => {
+                selectionStats[selName] = { 
+                    PJ: 0, G: 0, E: 0, P: 0, 
+                    // Real Goals (R) for secondary tie-breaker
+                    GF: 0, GC: 0, DG: 0, 
+                    // Selection Goals (S) (Club Wins) for primary tie-breaker
+                    Sel_GF: 0, Sel_GC: 0, Sel_DG: 0,
+                    Pts: 0
+                };
+
+                const opponents = goalsData[selName] || {};
+                
+                for (const opponentName in opponents) {
+                    const result = opponents[opponentName];
+                    
+                    selectionStats[selName].PJ += 1;
+                    
+                    // Accumulate Real Goals (R)
+                    selectionStats[selName].GF += result.Total_GF;
+                    selectionStats[selName].GC += result.Total_GC;
+
+                    // Accumulate Selection Goals (S) - Total Club Wins/Losses
+                    selectionStats[selName].Sel_GF += result.Wins_S;
+                    selectionStats[selName].Sel_GC += result.Wins_C;
+
+                    // W/D/L and Pts are based on the MATCH RESULT (comparison of Club Wins)
+                    if (result.Wins_S > result.Wins_C) {
+                        selectionStats[selName].G += 1; 
+                        selectionStats[selName].Pts += 3;
+                    } else if (result.Wins_S === result.Wins_C) {
+                        selectionStats[selName].E += 1; 
+                        selectionStats[selName].Pts += 1;
+                    } else {
+                        selectionStats[selName].P += 1;
+                    }
+                }
+
+                // Calculate Differences
+                selectionStats[selName].DG = selectionStats[selName].GF - selectionStats[selName].GC;
+                selectionStats[selName].Sel_DG = selectionStats[selName].Sel_GF - selectionStats[selName].Sel_GC; 
+            });
+
+            const finalClassification = Object.keys(selectionStats).map(name => ({
+                name: name,
+                ...selectionStats[name]
+            }));
+
+            // Criterios de orden (Prioridad): Pts > DG(S) > GF(S) > DG(R) > GF(R)
+            finalClassification.sort((a, b) => {
+                if (b.Pts !== a.Pts) return b.Pts - a.Pts;
+                // 1. Criterio de "Partidos Selecciones Goals" (Club Wins Totales)
+                if (b.Sel_DG !== a.Sel_DG) return b.Sel_DG - a.Sel_DG;
+                if (b.Sel_GF !== a.Sel_GF) return b.Sel_GF - a.Sel_GF;
+                // 2. Criterio de Goles Reales (Desempate)
+                if (b.DG !== a.DG) return b.DG - a.DG;
+                return b.GF - a.GF;
+            });
+
+            return finalClassification;
+        }
+
+
+        /**
+         * Renderiza la tabla de clasificación.
+         */
+        function renderClassification(classification) {
+            const tableBody = document.getElementById('classification-table-body');
+            tableBody.innerHTML = ''; // Limpiar
+
+            if (classification.length === 0) {
+                 tableBody.innerHTML = '<tr><td colspan="13" class="py-4 text-center text-gray-500">No hay datos de clasificación disponibles.</td></tr>';
+                 return;
+            }
+
+            classification.forEach((team, index) => {
+                const rank = index + 1;
+                let rankClass = '';
+                let rankTextColor = ''; // Color de texto para el puesto
+
+                if (rank >= 1 && rank <= 8) {
+                    // Clasificación a octavos
+                    rankClass = 'rank-1-8';
+                    rankTextColor = 'text-teal-800';
+                } else if (rank >= 9 && rank <= 24) {
+                    // Repesca
+                    rankClass = 'rank-9-24';
+                    rankTextColor = 'text-amber-800';
+                } else {
+                    // Eliminado
+                    rankClass = 'rank-25-plus';
+                    rankTextColor = 'text-red-800';
+                }
+
+                const row = document.createElement('tr');
+                // Ahora, la clase de rango (que incluye el borde) y la clase base se combinan
+                // Aseguramos que rank-status se aplique para el borde y el hover.
+                row.className = `rank-status hover:opacity-80 transition-opacity duration-200 ${rankClass}`;
+                
+                row.innerHTML = `
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-extrabold ${rankTextColor}">${rank}</td>
+                    <td class="px-6 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">${team.name}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700">${team.PJ}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-green-700">${team.G}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-yellow-700">${team.E}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-red-700">${team.P}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700 font-semibold">${team.Sel_GF}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700">${team.Sel_GC}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-bold ${team.Sel_DG >= 0 ? 'text-blue-700' : 'text-red-700'}">${team.Sel_DG}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-600">${team.GF}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-600">${team.GC}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-500">${team.DG}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-base font-extrabold text-blue-800">${team.Pts}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        /**
+         * Renderiza los resultados agregados para la jornada actual.
+         */
+        function renderResults(clubResultsByJornada, selectionMatchGoals) {
+            const resultsList = document.getElementById('match-results-list');
+            const jornadaTitle = document.getElementById('current-jornada-title');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+
+            resultsList.innerHTML = ''; 
+
+            if (sortedJornadas.length === 0) {
+                jornadaTitle.textContent = 'Sin Jornadas';
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
+                resultsList.innerHTML = '<p class="text-center text-gray-500">No se encontraron resultados de partidos.</p>';
+                return;
+            }
+
+            // Habilitar/Deshabilitar botones:
+            // 'Anterior' (changeJornada(1)) va a la jornada más antigua (índice mayor). Se deshabilita en la jornada más antigua.
+            prevBtn.disabled = currentJornadaIndex === sortedJornadas.length - 1;
+            // 'Siguiente' (changeJornada(-1)) va a la jornada más reciente (índice 0). Se deshabilita en la jornada más reciente.
+            nextBtn.disabled = currentJornadaIndex === 0;
+
+            const jornadaNum = sortedJornadas[currentJornadaIndex];
+            // Mostrar posición relativa: 1/N (siendo 1 la más reciente)
+            const relativePosition = sortedJornadas.length - currentJornadaIndex;
+            jornadaTitle.textContent = `Jornada ${jornadaNum} (${relativePosition}/${sortedJornadas.length})`;
+            
+            const clubMatches = clubResultsByJornada[jornadaNum] || [];
+
+            // 1. Agrupar resultados de clubes por enfrentamiento de Selección para esta jornada
+            const selectionMatchInJornada = {}; 
+            clubMatches.forEach(match => {
+                const key = `${match.homeSel} vs ${match.awaySel}`;
+                
+                selectionMatchInJornada[key] = selectionMatchInJornada[key] || {
+                    selA: match.homeSel, 
+                    selB: match.awaySel,
+                    clubMatches: []
+                };
+                selectionMatchInJornada[key].clubMatches.push(match);
+            });
+
+
+            // 2. Generar el HTML para la Jornada
+            const jornadaDiv = document.createElement('div');
+            jornadaDiv.className = 'border border-gray-200 rounded-lg overflow-hidden shadow-md';
+            
+            let jornadaHtml = '';
+            
+            Object.values(selectionMatchInJornada).forEach((selectionMatch) => {
+                const sel1 = selectionMatch.selA; // Selección Local (en el primer club match)
+                const sel2 = selectionMatch.selB; // Selección Visitante
+
+                // Buscar los resultados agregados (Wins y Goles) usando la clave Sel1 vs Sel2
+                const storedData = selectionMatchGoals[sel1]?.[sel2] || { Wins_S: 0, Wins_C: 0, Total_GF: 0, Total_GC: 0 };
+
+                // Marcador principal (Club Wins)
+                const primaryScoreSel1 = storedData.Wins_S; 
+                const primaryScoreSel2 = storedData.Wins_C;
+
+                // Marcador de desempate (Real Goals)
+                const totalGoalsSel1 = storedData.Total_GF;
+                const totalGoalsSel2 = storedData.Total_GC;
+
+                // Determinar el color basado en el resultado de Club Wins
+                let resultClass = 'font-bold text-gray-800';
+                if (primaryScoreSel1 > primaryScoreSel2) { resultClass = 'font-bold text-green-700'; }
+                else if (primaryScoreSel1 < primaryScoreSel2) { resultClass = 'font-bold text-red-700'; }
+                
+                // Contenedor del resultado de Selección (clic para expandir)
+                jornadaHtml += `
+                    <div class="selection-match p-3 border-t border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors" 
+                            onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.rotated-arrow').classList.toggle('rotate-180');">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-700">${sel1}</span>
+                            <div class="flex flex-col items-center mx-3">
+                                <span class="text-xl ${resultClass} whitespace-nowrap">${primaryScoreSel1} - ${primaryScoreSel2}</span>
+                                <span class="text-xs text-gray-500 whitespace-nowrap">Goles R: ${totalGoalsSel1} - ${totalGoalsSel2}</span>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">${sel2}</span>
+                            <!-- Icono de expansión/colapso -->
+                            <svg class="w-4 h-4 text-gray-500 rotated-arrow ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                    <!-- Detalles de Clubes (Inicialmente oculto) -->
+                    <div class="club-details hidden bg-gray-50 p-2 border-t border-gray-100 text-xs space-y-1">
+                        ${selectionMatch.clubMatches.map(clubMatch => {
+                            const clubResultClass = clubMatch.gl > clubMatch.gv ? 'text-green-600' : clubMatch.gl < clubMatch.gv ? 'text-red-600' : 'text-gray-600';
+                            return `
+                                <div class="flex justify-between items-center px-2 py-1 bg-white rounded-md shadow-sm border border-dashed border-gray-200">
+                                    <span class="text-gray-600">${clubMatch.local}</span>
+                                    <span class="font-mono text-xs font-semibold ${clubResultClass}">${clubMatch.gl} - ${clubMatch.gv}</span>
+                                    <span class="text-gray-600">${clubMatch.visit}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            });
+            
+            jornadaDiv.innerHTML = jornadaHtml;
+            resultsList.appendChild(jornadaDiv);
+        }
+
+        /**
+         * Navega a la jornada anterior o siguiente.
+         * @param {number} direction - -1 para ir a la más RECIENTE, 1 para ir a la más ANTIGUA.
+         */
+        function changeJornada(direction) {
+            const newIndex = currentJornadaIndex + direction;
+            if (newIndex >= 0 && newIndex < sortedJornadas.length) {
+                currentJornadaIndex = newIndex;
+                renderResults(clubResultsByJornadaCache, selectionMatchGoalsCache);
+            }
+        }
+        
+        // Exponer la función de cambio al scope global para que los botones la llamen
+        window.changeJornada = changeJornada; 
+
+        // --- FUNCIÓN PRINCIPAL DE EJECUCIÓN ---
+        function initializeApp() {
+            if (TEAMS_CONFIG.length === 0 || MATCH_RESULTS.length === 0) {
+                console.warn("Datos de entrada faltantes. Asegúrate de inyectar los datos en el script.");
+                document.getElementById('classification-table-body').innerHTML = '<tr><td colspan="13" class="py-4 text-center text-red-500">ERROR: No se inyectaron los datos de equipos o resultados.</td></tr>';
+                document.getElementById('match-results-list').innerHTML = '<p class="text-center text-red-500">Faltan datos de resultados. Verifica la inyección de datos.</p>';
+                return;
+            }
+            
+            setupData();
+            const { finalClassification, clubResultsByJornada, selectionMatchGoals } = calculateStats();
+
+            // Ordenar las jornadas del más reciente al más antiguo (Jornada N, N-1, ...)
+            sortedJornadas = Object.keys(clubResultsByJornada).map(Number).sort((a, b) => b - a); 
+            currentJornadaIndex = 0; // Mostrar la más reciente primero
+
+            renderClassification(finalClassification);
+            renderResults(clubResultsByJornada, selectionMatchGoals);
+        }
+
+        // Inicializar la aplicación cuando el documento esté listo
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+    </script>
+</body>
+</html>
