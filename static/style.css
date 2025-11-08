@@ -1,0 +1,7 @@
+body {
+    background-image: url('aescudo2025.png'); /* ¡Cambia la ruta! */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed; /* Opcional: para que el fondo no se mueva al hacer scroll */
+}
