@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f7fafc;
@@ -21,7 +20,6 @@
         .rotate-180 {
             transform: rotate(180deg);
         }
-        
         /* Estilos específicos para la clasificación */
         .rank-status {
             border-left-width: 4px;
@@ -40,7 +38,17 @@
         .rank-25-plus { 
             background-color: #fce4e4; /* Red-50 */
             border-left-color: #f44336; /* Red / Eliminado */
-        } 
+        }
+        
+        /* === MODIFICACIÓN PARA VISTA MÓVIL === */
+        /* Ocultar columnas de Criterios de Desempate Secundarios (Goles Reales) en pantallas pequeñas */
+        @media (max-width: 1023px) {
+            /* Ocultar las columnas GF (R), GC (R), AVG (R) en la cabecera y el cuerpo */
+            .hide-on-mobile {
+                display: none;
+            }
+        }
+        /* La clase 'overflow-x-auto' ya garantiza el scroll lateral si el contenido excede el ancho */
     </style>
 </head>
 <body class="p-4 sm:p-8">
@@ -74,7 +82,7 @@
                 </div>
 
                 <p class="text-xs text-gray-500 mb-4">
-                    **Criterio de Orden (Prioridad):** Pts > <span class="font-bold text-blue-700">AVG (S)</span> > GF(S) > AVG(R) > GF(R)
+                    **Criterio de Orden (Prioridad):** Pts > DG(S) > GF(S) > DG(R) > GF(R)
                 </p>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -83,16 +91,16 @@
                                 <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg">#</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Selección</th>
                                 <th class="px-3 py-3 text-center text-sm font-bold text-gray-800 uppercase tracking-wider rounded-tr-lg">Pts</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">PJ</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">G</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">E</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">P</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Diferencia de Goles (Club Wins)">AVG (S)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">PJ</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">G</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">E</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">P</th>
                                 <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Goles a Favor (Club Wins)">GF (S)</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell" title="Goles en Contra (Club Wins)">GC (S)</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell" title="Diferencia de Goles (Reales)">AVG (R)</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell" title="Goles a Favor (Reales)">GF (R)</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell" title="Goles en Contra (Reales)">GC (R)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Goles en Contra (Club Wins)">GC (S)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Diferencia de Goles (Club Wins)">AVG (S)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hide-on-mobile" title="Goles a Favor (Reales)">GF (R)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hide-on-mobile" title="Goles en Contra (Reales)">GC (R)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hide-on-mobile" title="Diferencia de Goles (Reales)">AVG (R)</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="classification-table-body">
@@ -1817,10 +1825,10 @@
         "group": null
     },
     {
-        "local": "nan",
+        "local": "ManchEagles",
         "gl": 0,
-        "gv": 0,
-        "visit": "nan",
+        "gv": 3,
+        "visit": "FC Algeciras",
         "jornada": 2,
         "group": null
     },
@@ -2216,25 +2224,20 @@
                 // Aseguramos que rank-status se aplique para el borde y el hover.
                 row.className = `rank-status hover:opacity-80 transition-opacity duration-200 ${rankClass}`;
                 
-                // Se añaden las clases hidden sm:table-cell a las columnas que se ocultan en móvil
-                // CORRECCIÓN: Se aplica 'hidden sm:table-cell' a todas las celdas correspondientes.
                 row.innerHTML = `
                     <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-extrabold ${rankTextColor}">${rank}</td>
                     <td class="px-6 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">${team.name}</td>
                     <td class="px-3 py-3 whitespace-nowrap text-center text-base font-extrabold text-blue-800">${team.Pts}</td>
-                    
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700 hidden sm:table-cell">${team.PJ}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-green-700 hidden sm:table-cell">${team.G}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-yellow-700 hidden sm:table-cell">${team.E}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-red-700 hidden sm:table-cell">${team.P}</td>
-                    
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-bold ${team.Sel_DG >= 0 ? 'text-blue-700' : 'text-red-700'}">${team.Sel_DG}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700">${team.PJ}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-green-700">${team.G}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-yellow-700">${team.E}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-red-700">${team.P}</td>
                     <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700 font-semibold">${team.Sel_GF}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700 hidden sm:table-cell">${team.Sel_GC}</td>
-                    
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-500 hidden sm:table-cell">${team.DG}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-600 hidden sm:table-cell">${team.GF}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-600 hidden sm:table-cell">${team.GC}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700">${team.Sel_GC}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-bold ${team.Sel_DG >= 0 ? 'text-blue-700' : 'text-red-700'}">${team.Sel_DG}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-600 hide-on-mobile">${team.GF}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-600 hide-on-mobile">${team.GC}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-500 hide-on-mobile">${team.DG}</td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -2315,7 +2318,7 @@
                 // Contenedor del resultado de Selección (clic para expandir)
                 jornadaHtml += `
                     <div class="selection-match p-3 border-t border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors" 
-                            onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.rotated-arrow').classList.toggle('rotate-180');">
+                                onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.rotated-arrow').classList.toggle('rotate-180');">
                         <div class="flex items-center justify-between">
                             <span class="text-sm font-medium text-gray-700">${sel1}</span>
                             <div class="flex flex-col items-center mx-3">
