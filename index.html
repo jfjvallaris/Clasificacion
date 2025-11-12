@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clasificación PCLiga</title>
+    <!-- Carga de Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuración de Tailwind y fuente Inter -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         body {
@@ -21,6 +23,7 @@
             transform: rotate(180deg);
         }
         /* Estilos específicos para la clasificación */
+        /* Aplicamos el borde izquierdo a todas las filas con la clase rank-status */
         .rank-status {
             border-left-width: 4px;
             border-left-style: solid;
@@ -38,17 +41,7 @@
         .rank-25-plus { 
             background-color: #fce4e4; /* Red-50 */
             border-left-color: #f44336; /* Red / Eliminado */
-        }
-        
-        /* === MODIFICACIÓN PARA VISTA MÓVIL === */
-        /* Ocultar columnas de Criterios de Desempate Secundarios (Goles Reales) en pantallas pequeñas */
-        @media (max-width: 1023px) {
-            /* Ocultar las columnas GF (R), GC (R), AVG (R) en la cabecera y el cuerpo */
-            .hide-on-mobile {
-                display: none;
-            }
-        }
-        /* La clase 'overflow-x-auto' ya garantiza el scroll lateral si el contenido excede el ancho */
+        } 
     </style>
 </head>
 <body class="p-4 sm:p-8">
@@ -61,11 +54,14 @@
             <p class="text-xl text-gray-600 mt-2">Temporada 2025</p>
         </header>
 
+        <!-- Contenedor principal para la tabla y resultados -->
         <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
             
+            <!-- Columna de Clasificación (3/4 en escritorio) -->
             <section class="lg:col-span-3 bg-white p-6 rounded-xl shadow-2xl h-fit" id="classification-section">
                 <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">Tabla de Selecciones</h2>
                 
+                <!-- Leyenda de Clasificación -->
                 <div class="flex flex-wrap gap-4 mb-4 text-sm">
                     <span class="flex items-center">
                         <span class="w-3 h-3 rounded-full bg-teal-500 mr-2"></span>
@@ -82,7 +78,7 @@
                 </div>
 
                 <p class="text-xs text-gray-500 mb-4">
-                    **Criterio de Orden (Prioridad):** Pts > DG(S) > GF(S) > DG(R) > GF(R)
+                    **Criterio de Orden (Prioridad):** Pts > AVG(S) > GF(S) > AVG(R) > GF(R)
                 </p>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -91,16 +87,16 @@
                                 <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg">#</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Selección</th>
                                 <th class="px-3 py-3 text-center text-sm font-bold text-gray-800 uppercase tracking-wider rounded-tr-lg">Pts</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">PJ</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">G</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">E</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">P</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Goles a Favor (Club Wins)">GF (S)</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Goles en Contra (Club Wins)">GC (S)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">PJ</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">G</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">E</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">P</th>
                                 <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Diferencia de Goles (Club Wins)">AVG (S)</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hide-on-mobile" title="Goles a Favor (Reales)">GF (R)</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hide-on-mobile" title="Goles en Contra (Reales)">GC (R)</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hide-on-mobile" title="Diferencia de Goles (Reales)">AVG (R)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Goles a Favor (Club Wins)">GF (S)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell" title="Goles en Contra (Club Wins)">GC (S)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Diferencia de Goles (Reales)">AVG (R)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Goles a Favor (Reales)">GF (R)</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell" title="Goles en Contra (Reales)">GC (R)</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="classification-table-body">
@@ -110,20 +106,24 @@
                 </div>
             </section>
 
+            <!-- Columna de Resultados (1/4 en escritorio) -->
             <section class="lg:col-span-1 bg-white p-6 rounded-xl shadow-2xl h-fit" id="results-section">
                 <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">Resultados</h2>
                 
                 <div id="jornada-controls" class="flex justify-between items-center mb-4">
+                    <!-- Botón para ir a la jornada ANTERIOR (más antigua) -->
                     <button id="prev-btn" onclick="changeJornada(1)" class="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-lg shadow hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                         &larr; Anterior
                     </button>
                     <span id="current-jornada-title" class="text-lg font-bold text-gray-700"></span>
+                    <!-- Botón para ir a la jornada SIGUIENTE (más reciente) -->
                     <button id="next-btn" onclick="changeJornada(-1)" class="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-lg shadow hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                         Siguiente &rarr;
                     </button>
                 </div>
 
                 <div id="match-results-list" class="space-y-6">
+                    <!-- Resultados inyectados por JS -->
                     <p class="text-center text-gray-500">Cargando resultados...</p>
                 </div>
             </section>
@@ -2228,16 +2228,16 @@
                     <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-extrabold ${rankTextColor}">${rank}</td>
                     <td class="px-6 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">${team.name}</td>
                     <td class="px-3 py-3 whitespace-nowrap text-center text-base font-extrabold text-blue-800">${team.Pts}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700">${team.PJ}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-green-700">${team.G}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-yellow-700">${team.E}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-red-700">${team.P}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700 font-semibold">${team.Sel_GF}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700">${team.Sel_GC}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700 hidden lg:table-cell">${team.PJ}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-green-700 hidden lg:table-cell">${team.G}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-yellow-700 hidden lg:table-cell">${team.E}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-red-700 hidden lg:table-cell">${team.P}</td>
                     <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-bold ${team.Sel_DG >= 0 ? 'text-blue-700' : 'text-red-700'}">${team.Sel_DG}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-600 hide-on-mobile">${team.GF}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-600 hide-on-mobile">${team.GC}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-500 hide-on-mobile">${team.DG}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700 font-semibold">${team.Sel_GF}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700 hidden lg:table-cell">${team.Sel_GC}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-500">${team.DG}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-600">${team.GF}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-600 hidden lg:table-cell">${team.GC}</td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -2318,7 +2318,7 @@
                 // Contenedor del resultado de Selección (clic para expandir)
                 jornadaHtml += `
                     <div class="selection-match p-3 border-t border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors" 
-                                onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.rotated-arrow').classList.toggle('rotate-180');">
+                            onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.rotated-arrow').classList.toggle('rotate-180');">
                         <div class="flex items-center justify-between">
                             <span class="text-sm font-medium text-gray-700">${sel1}</span>
                             <div class="flex flex-col items-center mx-3">
@@ -2326,11 +2326,13 @@
                                 <span class="text-xs text-gray-500 whitespace-nowrap">Goles R: ${totalGoalsSel1} - ${totalGoalsSel2}</span>
                             </div>
                             <span class="text-sm font-medium text-gray-700">${sel2}</span>
+                            <!-- Icono de expansión/colapso -->
                             <svg class="w-4 h-4 text-gray-500 rotated-arrow ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </div>
                     </div>
+                    <!-- Detalles de Clubes (Inicialmente oculto) -->
                     <div class="club-details hidden bg-gray-50 p-2 border-t border-gray-100 text-xs space-y-1">
                         ${selectionMatch.clubMatches.map(clubMatch => {
                             const clubResultClass = clubMatch.gl > clubMatch.gv ? 'text-green-600' : clubMatch.gl < clubMatch.gv ? 'text-red-600' : 'text-gray-600';
