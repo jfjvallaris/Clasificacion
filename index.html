@@ -87,16 +87,16 @@
                                 <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg">#</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Selección</th>
                                 <th class="px-3 py-3 text-center text-sm font-bold text-gray-800 uppercase tracking-wider rounded-tr-lg">Pts</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">PJ</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">G</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">E</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">P</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">PJ</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">G</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">E</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">P</th>
                                 <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Diferencia de Goles (Club Wins)">AVG (S)</th>
                                 <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Goles a Favor (Club Wins)">GF (S)</th>
-                                <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell" title="Goles en Contra (Club Wins)">GC (S)</th>
+                                <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell" title="Goles en Contra (Club Wins)">GC (S)</th>
                                 <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Diferencia de Goles (Reales)">AVG (R)</th>
                                 <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Goles a Favor (Reales)">GF (R)</th>
-                                <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell" title="Goles en Contra (Reales)">GC (R)</th>
+                                <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell" title="Goles en Contra (Reales)">GC (R)</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="classification-table-body">
@@ -3016,16 +3016,16 @@
                     <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-extrabold ${rankTextColor}">${rank}</td>
                     <td class="px-6 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">${team.name}</td>
                     <td class="px-3 py-3 whitespace-nowrap text-center text-base font-extrabold text-blue-800">${team.Pts}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-500 hidden lg:table-cell">${team.PJ}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-green-500 hidden lg:table-cell">${team.G}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-yellow-500 hidden lg:table-cell">${team.E}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-red-700 hidden lg:table-cell">${team.P}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-500 hidden sm:table-cell">${team.PJ}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-green-500 hidden sm:table-cell">${team.G}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-yellow-500 hidden sm:table-cell">${team.E}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-red-700 hidden sm:table-cell">${team.P}</td>
                     <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-bold ${team.Sel_DG >= 0 ? 'text-blue-700' : 'text-red-700'}">${team.Sel_DG}</td>
                     <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-500 font-semibold">${team.Sel_GF}</td>
-                    <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-500 hidden lg:table-cell">${team.Sel_GC}</td>
+                    <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-500 hidden sm:table-cell">${team.Sel_GC}</td>
                     <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-500">${team.DG}</td>
                     <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-500">${team.GF}</td>
-                    <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-500 hidden lg:table-cell">${team.GC}</td>
+                    <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-500 hidden sm:table-cell">${team.GC}</td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -3067,7 +3067,7 @@
             const esProximaJornada = clubMatches.length > 0 && clubMatches.every(m => m.is_scheduled);
             
             if (esProximaJornada) {
-                jornadaTitle.textContent = `Próxima Jornada ${jornadaNum} (${relativePosition}/${sortedJornadas.length})`;
+                jornadaTitle.textContent = `Jornada ${jornadaNum} (${relativePosition}/${sortedJornadas.length})`;
             } else {
                 jornadaTitle.textContent = `Jornada ${jornadaNum} (${relativePosition}/${sortedJornadas.length})`;
             }
