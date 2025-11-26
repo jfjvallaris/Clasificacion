@@ -4,99 +4,131 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clasificación PCLiga</title>
-    <!-- Carga de Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Configuración de Tailwind y fuente Inter -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7fafc;
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        .text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .rotate-180 { transform: rotate(180deg); }
+        .transition-transform { transition: transform 0.3s; }
+        
+        /* --- ESTILOS CLASIFICACIÓN --- */
+        .rank-status { border-left-width: 4px; border-left-style: solid; transition: background-color 0.2s, border-left-color 0.2s; }
+        .rank-1-8 { background-color: #e0f2f1; border-left-color: #009688; } 
+        .rank-9-24 { background-color: #fffde7; border-left-color: #ffc107; } 
+        .rank-25-plus { background-color: #fce4e4; border-left-color: #f44336; }
+
+        /* --- ESTILOS BRACKET GRID --- */
+        .bracket-wrapper {
+            overflow-x: auto;
+            padding: 20px 0;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e0 #edf2f7;
         }
-        .text-shadow {
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        /* Definimos la estructura de columnas UNA SOLA VEZ para usarla en header y body */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 240px 240px 240px 240px 240px; 
+            gap: 0 30px;
+            min-width: 1250px;
         }
-        .rotated-arrow {
-            transition: transform 0.3s;
+        .bracket-header {
+            margin-bottom: 10px;
+            padding-left: 0;
         }
-        .rotate-180 {
-            transform: rotate(180deg);
-        }
-        /* Estilos específicos para la clasificación */
-        /* Aplicamos el borde izquierdo a todas las filas con la clase rank-status */
-        .rank-status {
-            border-left-width: 4px;
-            border-left-style: solid;
-            transition: background-color 0.2s, border-left-color 0.2s;
+        .header-item {
+            text-align: center;
+            font-size: 0.75rem; /* text-xs */
+            font-weight: 700;
+            color: #94a3b8; /* text-gray-400 */
+            letter-spacing: 0.05em;
         }
         
-        .rank-1-8 { 
-            background-color: #e0f2f1; /* Teal-50 */
-            border-left-color: #009688; /* Teal / Clasificado */
-        } 
-        .rank-9-24 { 
-            background-color: #fffde7; /* Yellow-50 */
-            border-left-color: #ffc107; /* Yellow / Repesca */
-        } 
-        .rank-25-plus { 
-            background-color: #fce4e4; /* Red-50 */
-            border-left-color: #f44336; /* Red / Eliminado */
-        } 
+        .bracket-grid {
+            grid-template-rows: repeat(8, auto);
+        }
+        .bracket-cell {
+            display: flex;
+            flex-direction: column;
+            justify-content: center; 
+            padding: 10px 0;
+            position: relative;
+        }
+        /* Conectores */
+        .connector-right::after {
+            content: ''; position: absolute; right: -30px; top: 50%;
+            width: 30px; height: 1px; background: #cbd5e0; z-index: 0;
+        }
+        /* Tarjetas Bracket */
+        .bracket-card {
+            background: white; border: 1px solid #e2e8f0; border-radius: 8px;
+            padding: 8px 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            font-size: 0.8rem; position: relative; z-index: 1;
+        }
+        .bracket-card.tentative { border: 1px dashed #cbd5e0; background-color: #f8fafc; opacity: 0.8; }
+        .team-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+        .team-name { font-weight: 600; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+        .team-score { font-family: monospace; font-weight: bold; color: #1e293b; }
+        .font-winner { color: #000; font-weight: 800; }
+        .meta-info { border-top: 1px solid #f1f5f9; margin-top: 4px; padding-top: 2px; font-size: 0.7rem; text-align: center; color: #64748b; }
     </style>
 </head>
 <body class="p-4 sm:p-8">
 
     <div class="max-w-7xl mx-auto">
-        <header class="text-center mb-12">
+        <header class="text-center mb-8">
             <h1 class="text-4xl sm:text-5xl font-extrabold text-blue-800 tracking-tight text-shadow">
                 Mundial Sudáfrica XXV
             </h1>
             <p class="text-xl text-gray-600 mt-2">Temporada 2025</p>
         </header>
 
-        <!-- Contenedor principal para la tabla y resultados -->
+        <section class="bg-white p-6 rounded-xl shadow-xl border border-gray-200 mb-8 overflow-hidden">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                <span class="mr-2">🏆</span> Fase Final
+            </h2>
+            <div class="bracket-wrapper">
+                <div class="grid-layout bracket-header">
+                    <div class="header-item">REPESCA</div>
+                    <div class="header-item">OCTAVOS</div>
+                    <div class="header-item">CUARTOS</div>
+                    <div class="header-item">SEMIFINALES</div>
+                    <div class="header-item">FINAL</div>
+                </div>
+                <div id="bracket-grid" class="grid-layout bracket-grid">
+                    <p class="col-span-5 text-center text-gray-400 py-10">Cargando cuadro...</p>
+                </div>
+            </div>
+        </section>
+
         <main class="grid grid-cols-1 lg:grid-cols-8 gap-8">
             
-            <!-- Columna de Clasificación (5/8 en escritorio) -->
             <section class="lg:col-span-5 bg-white p-6 rounded-xl shadow-2xl h-fit" id="classification-section">
                 <h2 class="text-3xl text-center font-bold mb-4 text-gray-800 border-b pb-2">Clasificación</h2>
                 
-                <!-- Leyenda de Clasificación -->
-                <div class="flex flex-wrap gap-4 mb-4 text-sm">
-                    <span class="flex items-center">
-                        <span class="w-3 h-3 rounded-full bg-teal-500 mr-2"></span>
-                        <span class="text-gray-700 font-semibold">1-8: Clasificación directa a Octavos</span>
-                    </span>
-                    <span class="flex items-center">
-                        <span class="w-3 h-3 rounded-full bg-amber-500 mr-2"></span>
-                        <span class="text-gray-700 font-semibold">9-24: Repesca (16 avos)</span>
-                    </span>
-                    <span class="flex items-center">
-                        <span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span>
-                        <span class="text-gray-700 font-semibold">25+: Eliminado</span>
-                    </span>
+                <div class="flex flex-wrap gap-4 mb-4 text-sm justify-center sm:justify-start">
+                    <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-teal-500 mr-2"></span><span class="text-gray-700 font-semibold">1-8: Octavos</span></span>
+                    <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-amber-500 mr-2"></span><span class="text-gray-700 font-semibold">9-24: Repesca</span></span>
+                    <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span><span class="text-gray-700 font-semibold">Eliminado</span></span>
                 </div>
 
-                <p class="text-xs text-gray-500 mb-4">
-                    **Criterio de Orden (Prioridad):** Pts > AVG(S) > GF(S) > AVG(R) > GF(R)
-                </p>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-blue-50">
                             <tr>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg">#</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Selección</th>
-                                <th class="px-3 py-3 text-center text-sm font-bold text-gray-800 uppercase tracking-wider rounded-tr-lg">Pts</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">PJ</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">G</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">E</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">P</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Diferencia de Goles (Club Wins)">AVG (S)</th>
-                                <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Goles a Favor (Club Wins)">GF (S)</th>
-                                <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell" title="Goles en Contra (Club Wins)">GC (S)</th>
-                                <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Diferencia de Goles (Reales)">AVG (R)</th>
-                                <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Goles a Favor (Reales)">GF (R)</th>
-                                <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell" title="Goles en Contra (Reales)">GC (R)</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase rounded-tl-lg">#</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Selección</th>
+                                <th class="px-3 py-3 text-center text-sm font-bold text-gray-800 uppercase">Pts</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">PJ</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">G</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">E</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">P</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase">AVG (S)</th>
+                                <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase">GF (S)</th>
+                                <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">GC (S)</th>
+                                <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase">AVG (R)</th>
+                                <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase">GF (R)</th>
+                                <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase hidden sm:table-cell rounded-tr-lg">GC (R)</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="classification-table-body">
@@ -106,24 +138,17 @@
                 </div>
             </section>
 
-            <!-- Columna de Resultados (3/8 en escritorio) -->
             <section class="lg:col-span-3 bg-white p-6 rounded-xl shadow-2xl h-fit" id="results-section">
-                <h2 class="text-2xl text-center font-bold mb-4 text-gray-800 border-b pb-2">Resultados - Calendario</h2>
+                <h2 class="text-2xl text-center font-bold mb-4 text-gray-800 border-b pb-2">Resultados</h2>
                 
                 <div id="jornada-controls" class="flex justify-between items-center mb-4">
-                    <!-- Botón para ir a la jornada ANTERIOR (más antigua) -->
-                    <button id="prev-btn" onclick="changeJornada(1)" class="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-lg shadow hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        &larr; Anterior
-                    </button>
-                    <span id="current-jornada-title" class="text-lg font-bold text-gray-700"></span>
-                    <!-- Botón para ir a la jornada SIGUIENTE (más reciente) -->
-                    <button id="next-btn" onclick="changeJornada(-1)" class="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-lg shadow hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        Siguiente &rarr;
-                    </button>
+                    <button id="prev-btn" onclick="changeJornada(1)" class="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-lg shadow hover:bg-blue-600 disabled:opacity-50">&larr; Anterior</button>
+                    <span id="current-jornada-title" class="text-sm font-bold text-gray-700 text-center"></span>
+                    <button id="next-btn" onclick="changeJornada(-1)" class="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-lg shadow hover:bg-blue-600 disabled:opacity-50">Siguiente &rarr;</button>
                 </div>
 
-                <div id="match-results-list" class="columns-1 gap-6 md:columns-[20rem]"> 
-                    <p class="text-center text-gray-500 md:col-span-2">Cargando resultados...</p>
+                <div id="match-results-list" class="columns-1 gap-4 md:columns-[20rem]"> 
+                    <p class="text-center text-gray-500">Cargando resultados...</p>
                 </div>
             </section>
 
@@ -883,26 +908,12 @@
         // [INJECT_RESULTS_DATA]
         const MATCH_RESULTS = [
     {
-        "local": "Local",
-        "gl": 0,
-        "gv": 0,
-        "visit": "Visitante",
-        "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
-    },
-    {
         "local": "Jambos Locos",
         "gl": 0,
         "gv": 2,
         "visit": "Sabadell F.C",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "C.D. Aragon",
@@ -910,10 +921,7 @@
         "gv": 0,
         "visit": "Meque",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Errantes F.C",
@@ -921,10 +929,7 @@
         "gv": 1,
         "visit": "balmes.c.f",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Lebowsky FC",
@@ -932,10 +937,7 @@
         "gv": 1,
         "visit": "Piratas",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CD Dimoni",
@@ -943,10 +945,7 @@
         "gv": 1,
         "visit": "Wataru CF",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "mesqunclub",
@@ -954,10 +953,7 @@
         "gv": 0,
         "visit": "Dinastia FC",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Gran Canaria",
@@ -965,10 +961,7 @@
         "gv": 1,
         "visit": "Clembuterol",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Jabberwocky",
@@ -976,10 +969,7 @@
         "gv": 0,
         "visit": "Puskas CF",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Talavera CF",
@@ -987,10 +977,7 @@
         "gv": 0,
         "visit": "CASPA_FC",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "4VKS",
@@ -998,10 +985,7 @@
         "gv": 0,
         "visit": "Porlaromy",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Melilla FC",
@@ -1009,10 +993,7 @@
         "gv": 1,
         "visit": "Batet",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Phoenix FC",
@@ -1020,10 +1001,7 @@
         "gv": 3,
         "visit": "C.E. Mataro",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "GuaCaMaYoS",
@@ -1031,10 +1009,7 @@
         "gv": 1,
         "visit": "TINTIN",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Envigado",
@@ -1042,10 +1017,7 @@
         "gv": 2,
         "visit": "Rosario Ar",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Lost2dRiver",
@@ -1053,10 +1025,7 @@
         "gv": 0,
         "visit": "Cuellar",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "GusanosButia",
@@ -1064,10 +1033,7 @@
         "gv": 2,
         "visit": "CF Se queda",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Atl. Tradis",
@@ -1075,10 +1041,7 @@
         "gv": 0,
         "visit": "Inter Alcala",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "DeportivoHur",
@@ -1086,10 +1049,7 @@
         "gv": 1,
         "visit": "Pakete.f.c",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Narón Utd.",
@@ -1097,10 +1057,7 @@
         "gv": 3,
         "visit": "Huesconsin",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "FC.Petrus",
@@ -1108,10 +1065,7 @@
         "gv": 3,
         "visit": "The boss",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Werewolves",
@@ -1119,10 +1073,7 @@
         "gv": 0,
         "visit": "Stralis FC",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Luismi F.C",
@@ -1130,10 +1081,7 @@
         "gv": 2,
         "visit": "The Kies",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "InterStar",
@@ -1141,10 +1089,7 @@
         "gv": 0,
         "visit": "ikeryna",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Humboldt FC",
@@ -1152,10 +1097,7 @@
         "gv": 3,
         "visit": "Eresma C.F",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "FC Algeciras",
@@ -1163,10 +1105,7 @@
         "gv": 1,
         "visit": "los peques",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Velez",
@@ -1174,10 +1113,7 @@
         "gv": 1,
         "visit": "O Mapelli",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "F.C.B. FISH",
@@ -1185,10 +1121,7 @@
         "gv": 1,
         "visit": "añuroc al",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Rara Avis",
@@ -1196,10 +1129,7 @@
         "gv": 3,
         "visit": "Box Lunch",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "FC MAXIM05",
@@ -1207,10 +1137,7 @@
         "gv": 3,
         "visit": "CP Monte",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "SHOHOKU",
@@ -1218,10 +1145,7 @@
         "gv": 2,
         "visit": "Puigvertenc",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Barrabases",
@@ -1229,10 +1153,7 @@
         "gv": 1,
         "visit": "Dep. Cigota",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Galactik Foo",
@@ -1240,10 +1161,7 @@
         "gv": 0,
         "visit": "Inde FC",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Martorell",
@@ -1251,10 +1169,7 @@
         "gv": 2,
         "visit": "Diplo F.C.",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "ESPADA F.C.",
@@ -1262,10 +1177,7 @@
         "gv": 2,
         "visit": "Barderos FC",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Protomech FC",
@@ -1273,10 +1185,7 @@
         "gv": 0,
         "visit": "VodkaLimon",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "MugiwaraTeam",
@@ -1284,10 +1193,7 @@
         "gv": 1,
         "visit": "flaret",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "skuirlys 2.0",
@@ -1295,10 +1201,7 @@
         "gv": 0,
         "visit": "ManchEagles",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "FERZA TEAM",
@@ -1306,10 +1209,7 @@
         "gv": 0,
         "visit": "oviedopool",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Tifosi FC",
@@ -1317,10 +1217,7 @@
         "gv": 0,
         "visit": "Ituteam",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Berdica Fc",
@@ -1328,10 +1225,7 @@
         "gv": 1,
         "visit": "Trivium",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "SD Burela",
@@ -1339,10 +1233,7 @@
         "gv": 2,
         "visit": "Girona F.C",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Whiteam",
@@ -1350,10 +1241,7 @@
         "gv": 2,
         "visit": "MANJULA",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CHEEKS",
@@ -1361,10 +1249,7 @@
         "gv": 1,
         "visit": "Aloha",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Xomi",
@@ -1372,10 +1257,7 @@
         "gv": 2,
         "visit": "Vigo Palace",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Los Boliches",
@@ -1383,10 +1265,7 @@
         "gv": 2,
         "visit": "Zipo 10",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "A.D. Ceuta",
@@ -1394,10 +1273,7 @@
         "gv": 1,
         "visit": "Armrodgon",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Malaguti F.C",
@@ -1405,10 +1281,7 @@
         "gv": 1,
         "visit": "RUMBERAS",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "NK Zvezda",
@@ -1416,10 +1289,7 @@
         "gv": 1,
         "visit": "Verdes fc",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Giulia Almer",
@@ -1427,10 +1297,7 @@
         "gv": 1,
         "visit": "punta F.C.",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "DOSSIS.ES",
@@ -1438,10 +1305,7 @@
         "gv": 0,
         "visit": "trivinet.com",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Bayonja FC",
@@ -1449,10 +1313,7 @@
         "gv": 1,
         "visit": "Los Peluches",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Parleste FC",
@@ -1460,10 +1321,7 @@
         "gv": 0,
         "visit": "FC PICASSO",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Pto Sagunto",
@@ -1471,10 +1329,7 @@
         "gv": 2,
         "visit": "VALLE SFC",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "jionde",
@@ -1482,10 +1337,7 @@
         "gv": 1,
         "visit": "Orlando red",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "La elite",
@@ -1493,10 +1345,7 @@
         "gv": 0,
         "visit": "Rapapolvo FC",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Normandos",
@@ -1504,10 +1353,7 @@
         "gv": 1,
         "visit": "TrainingTime",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Floren Team",
@@ -1515,10 +1361,7 @@
         "gv": 1,
         "visit": "ARCANGEL",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Ribe Utd",
@@ -1526,10 +1369,7 @@
         "gv": 0,
         "visit": "CF NouBarris",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "VamosLega",
@@ -1537,10 +1377,7 @@
         "gv": 1,
         "visit": "UDFurtaPeras",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Kamchatka",
@@ -1548,10 +1385,7 @@
         "gv": 0,
         "visit": "F.C.Masaos",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "The Cannibal",
@@ -1559,10 +1393,7 @@
         "gv": 0,
         "visit": "Rointe UD",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Laboure CF",
@@ -1570,10 +1401,7 @@
         "gv": 1,
         "visit": "kanpest",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "SD Brion",
@@ -1581,10 +1409,7 @@
         "gv": 0,
         "visit": "F.C.Sharkers",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Águilas",
@@ -1592,10 +1417,7 @@
         "gv": 0,
         "visit": "NakedCity",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "EL PUERTO",
@@ -1603,10 +1425,7 @@
         "gv": 2,
         "visit": "The Tenors",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Kaizer FC",
@@ -1614,10 +1433,7 @@
         "gv": 3,
         "visit": "Montoya Ut",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "R.Quimeras",
@@ -1625,10 +1441,7 @@
         "gv": 1,
         "visit": "Residuales",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "TAZZX",
@@ -1636,10 +1449,7 @@
         "gv": 1,
         "visit": "Jager United",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Coca Jrs.",
@@ -1647,10 +1457,7 @@
         "gv": 2,
         "visit": "tetoteam",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Los Mochil",
@@ -1658,21 +1465,7 @@
         "gv": 1,
         "visit": "DRAGONBOL",
         "jornada": 1,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 1",
-        "match_type": "REGULAR"
-    },
-    {
-        "local": "Local",
-        "gl": 0,
-        "gv": 0,
-        "visit": "Visitante",
-        "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Almodovar CF",
@@ -1680,10 +1473,7 @@
         "gv": 1,
         "visit": "Kaizer FC",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "NakedCity",
@@ -1691,10 +1481,7 @@
         "gv": 0,
         "visit": "R.Quimeras",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "The Tenors",
@@ -1702,10 +1489,7 @@
         "gv": 3,
         "visit": "TAZZX",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "kanpest",
@@ -1713,10 +1497,7 @@
         "gv": 0,
         "visit": "Coca Jrs.",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "F.C.Sharkers",
@@ -1724,10 +1505,7 @@
         "gv": 1,
         "visit": "Los Mochil",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "DRAGONBOL",
@@ -1735,10 +1513,7 @@
         "gv": 1,
         "visit": "Raudex",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "tetoteam",
@@ -1746,10 +1521,7 @@
         "gv": 3,
         "visit": "Laboure CF",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Jager United",
@@ -1757,10 +1529,7 @@
         "gv": 2,
         "visit": "Águilas",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Residuales",
@@ -1768,10 +1537,7 @@
         "gv": 1,
         "visit": "SD Brion",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Montoya Ut",
@@ -1779,10 +1545,7 @@
         "gv": 2,
         "visit": "The Cannibal",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Piratas",
@@ -1790,10 +1553,7 @@
         "gv": 1,
         "visit": "Billabona",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "URUGUAYOS FC",
@@ -1801,10 +1561,7 @@
         "gv": 2,
         "visit": "Ribe Utd",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Meque",
@@ -1812,10 +1569,7 @@
         "gv": 1,
         "visit": "VamosLega",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Sabadell F.C",
@@ -1823,10 +1577,7 @@
         "gv": 0,
         "visit": "Floren Team",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Wataru CF",
@@ -1834,10 +1585,7 @@
         "gv": 1,
         "visit": "Kamchatka",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "FC PICASSO",
@@ -1845,10 +1593,7 @@
         "gv": 4,
         "visit": "4VKS",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Los Peluches",
@@ -1856,10 +1601,7 @@
         "gv": 1,
         "visit": "Gran Canaria",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "VALLE SFC",
@@ -1867,10 +1609,7 @@
         "gv": 1,
         "visit": "Andalus C.D.",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Orlando red",
@@ -1878,10 +1617,7 @@
         "gv": 2,
         "visit": "Talavera CF",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Rapapolvo FC",
@@ -1889,10 +1625,7 @@
         "gv": 3,
         "visit": "SrMortred",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "VfB Pinet",
@@ -1900,10 +1633,7 @@
         "gv": 1,
         "visit": "Pto Sagunto",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "PSOE",
@@ -1911,10 +1641,7 @@
         "gv": 0,
         "visit": "Parleste FC",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Dinastia FC",
@@ -1922,10 +1649,7 @@
         "gv": 2,
         "visit": "La elite",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Clembuterol",
@@ -1933,10 +1657,7 @@
         "gv": 2,
         "visit": "jionde",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CASPA_FC",
@@ -1944,10 +1665,7 @@
         "gv": 2,
         "visit": "Bayonja FC",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Armrodgon",
@@ -1955,10 +1673,7 @@
         "gv": 2,
         "visit": "Lost2dRiver",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "RUMBERAS",
@@ -1966,10 +1681,7 @@
         "gv": 2,
         "visit": "Envigado",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "punta F.C.",
@@ -1977,10 +1689,7 @@
         "gv": 1,
         "visit": "GuaCaMaYoS",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "trivinet.com",
@@ -1988,10 +1697,7 @@
         "gv": 2,
         "visit": "Phoenix FC",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Verdes fc",
@@ -1999,10 +1705,7 @@
         "gv": 1,
         "visit": "Melilla FC",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Rosario Ar",
@@ -2010,10 +1713,7 @@
         "gv": 1,
         "visit": "DOSSIS.ES",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "C.E. Mataro",
@@ -2021,10 +1721,7 @@
         "gv": 1,
         "visit": "Malaguti F.C",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Batet",
@@ -2032,10 +1729,7 @@
         "gv": 0,
         "visit": "LUKINI",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Cuellar",
@@ -2043,10 +1737,7 @@
         "gv": 3,
         "visit": "A.D. Ceuta",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "TINTIN",
@@ -2054,10 +1745,7 @@
         "gv": 0,
         "visit": "Giulia Almer",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Zipo 10",
@@ -2065,10 +1753,7 @@
         "gv": 0,
         "visit": "Narón Utd.",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Ochate CF",
@@ -2076,10 +1761,7 @@
         "gv": 2,
         "visit": "Real Munilla",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Girona F.C",
@@ -2087,10 +1769,7 @@
         "gv": 1,
         "visit": "Atl. Tradis",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "MANJULA",
@@ -2098,10 +1777,7 @@
         "gv": 0,
         "visit": "DeportivoHur",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Vigo Palace",
@@ -2109,10 +1785,7 @@
         "gv": 3,
         "visit": "GusanosButia",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Pakete.f.c",
@@ -2120,10 +1793,7 @@
         "gv": 1,
         "visit": "SD Burela",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Inter Alcala",
@@ -2131,10 +1801,7 @@
         "gv": 0,
         "visit": "Whiteam",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CF Se queda",
@@ -2142,10 +1809,7 @@
         "gv": 0,
         "visit": "CHEEKS",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "The boss",
@@ -2153,10 +1817,7 @@
         "gv": 0,
         "visit": "Xomi",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Huesconsin",
@@ -2164,10 +1825,7 @@
         "gv": 2,
         "visit": "Los Boliches",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Ituteam",
@@ -2175,10 +1833,7 @@
         "gv": 0,
         "visit": "San Anton",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "ManchEagles",
@@ -2186,10 +1841,7 @@
         "gv": 3,
         "visit": "FC Algeciras",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "oviedopool",
@@ -2197,10 +1849,7 @@
         "gv": 1,
         "visit": "Luismi F.C",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "flaret",
@@ -2208,10 +1857,7 @@
         "gv": 3,
         "visit": "Werewolves",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Trivium",
@@ -2219,10 +1865,7 @@
         "gv": 0,
         "visit": "Humboldt FC",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "los peques",
@@ -2230,10 +1873,7 @@
         "gv": 0,
         "visit": "Tifosi FC",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "ikeryna",
@@ -2241,10 +1881,7 @@
         "gv": 2,
         "visit": "Berdica Fc",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Stralis FC",
@@ -2252,10 +1889,7 @@
         "gv": 2,
         "visit": "MugiwaraTeam",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Eresma C.F",
@@ -2263,10 +1897,7 @@
         "gv": 3,
         "visit": "Uchi-mata",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "The Kies",
@@ -2274,10 +1905,7 @@
         "gv": 1,
         "visit": "FERZA TEAM",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "C.D.Tenerife",
@@ -2285,10 +1913,7 @@
         "gv": 1,
         "visit": "Hospitalet",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Inde FC",
@@ -2296,10 +1921,7 @@
         "gv": 1,
         "visit": "F.C.B. FISH",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Diplo F.C.",
@@ -2307,10 +1929,7 @@
         "gv": 1,
         "visit": "Velez",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Dep. Cigota",
@@ -2318,10 +1937,7 @@
         "gv": 1,
         "visit": "JORDIER",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "VodkaLimon",
@@ -2329,10 +1945,7 @@
         "gv": 1,
         "visit": "FC MAXIM05",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "O Mapelli",
@@ -2340,10 +1953,7 @@
         "gv": 0,
         "visit": "ESPADA F.C.",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Puigvertenc",
@@ -2351,10 +1961,7 @@
         "gv": 0,
         "visit": "Galactik Foo",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "añuroc al",
@@ -2362,10 +1969,7 @@
         "gv": 1,
         "visit": "Barrabases",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Box Lunch",
@@ -2373,10 +1977,7 @@
         "gv": 0,
         "visit": "Protomech FC",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CP Monte",
@@ -2384,10 +1985,7 @@
         "gv": 1,
         "visit": "Martorell",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "TrainingTime",
@@ -2395,10 +1993,7 @@
         "gv": 0,
         "visit": "C.D. Aragon",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CF NouBarris",
@@ -2406,10 +2001,7 @@
         "gv": 1,
         "visit": "Errantes F.C",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "ARCANGEL",
@@ -2417,10 +2009,7 @@
         "gv": 1,
         "visit": "Lebowsky FC",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "F.C.Masaos",
@@ -2428,10 +2017,7 @@
         "gv": 2,
         "visit": "Ath. Laguna",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "La Eternidad",
@@ -2439,21 +2025,7 @@
         "gv": 1,
         "visit": "CD Dimoni",
         "jornada": 2,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 2",
-        "match_type": "REGULAR"
-    },
-    {
-        "local": "Local",
-        "gl": 0,
-        "gv": 0,
-        "visit": "Visitante",
-        "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Los Mochil",
@@ -2461,10 +2033,7 @@
         "gv": 0,
         "visit": "ESPADA F.C.",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Kaizer FC",
@@ -2472,10 +2041,7 @@
         "gv": 1,
         "visit": "Galactik Foo",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "TAZZX",
@@ -2483,10 +2049,7 @@
         "gv": 1,
         "visit": "Barrabases",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "R.Quimeras",
@@ -2494,10 +2057,7 @@
         "gv": 1,
         "visit": "Protomech FC",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Coca Jrs.",
@@ -2505,10 +2065,7 @@
         "gv": 0,
         "visit": "Martorell",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Montoya Ut",
@@ -2516,10 +2073,7 @@
         "gv": 0,
         "visit": "Dep. Cigota",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Jager United",
@@ -2527,10 +2081,7 @@
         "gv": 1,
         "visit": "Inde FC",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "tetoteam",
@@ -2538,10 +2089,7 @@
         "gv": 0,
         "visit": "iguasitges",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "DRAGONBOL",
@@ -2549,10 +2097,7 @@
         "gv": 2,
         "visit": "VodkaLimon",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Residuales",
@@ -2560,10 +2105,7 @@
         "gv": 2,
         "visit": "Diplo F.C.",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Errantes F.C",
@@ -2571,10 +2113,7 @@
         "gv": 1,
         "visit": "Berdica Fc",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Lebowsky FC",
@@ -2582,10 +2121,7 @@
         "gv": 2,
         "visit": "skuirlys 2.0",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "C.D. Aragon",
@@ -2593,10 +2129,7 @@
         "gv": 0,
         "visit": "MugiwaraTeam",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CD Dimoni",
@@ -2604,10 +2137,7 @@
         "gv": 0,
         "visit": "Uchi-mata",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Ath. Laguna",
@@ -2615,10 +2145,7 @@
         "gv": 2,
         "visit": "FERZA TEAM",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Piratas",
@@ -2626,10 +2153,7 @@
         "gv": 0,
         "visit": "flaret",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Meque",
@@ -2637,10 +2161,7 @@
         "gv": 2,
         "visit": "ManchEagles",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Wataru CF",
@@ -2648,10 +2169,7 @@
         "gv": 0,
         "visit": "oviedopool",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Sabadell F.C",
@@ -2659,10 +2177,7 @@
         "gv": 1,
         "visit": "Ituteam",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "balmes.c.f",
@@ -2670,10 +2185,7 @@
         "gv": 2,
         "visit": "Trivium",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Andalus C.D.",
@@ -2681,10 +2193,7 @@
         "gv": 1,
         "visit": "SD Burela",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "mesqunclub",
@@ -2692,10 +2201,7 @@
         "gv": 0,
         "visit": "Whiteam",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Gran Canaria",
@@ -2703,10 +2209,7 @@
         "gv": 0,
         "visit": "CHEEKS",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Talavera CF",
@@ -2714,10 +2217,7 @@
         "gv": 0,
         "visit": "Xomi",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Jabberwocky",
@@ -2725,10 +2225,7 @@
         "gv": 1,
         "visit": "Los Boliches",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Porlaromy",
@@ -2736,10 +2233,7 @@
         "gv": 1,
         "visit": "SASIJAINKO",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Clembuterol",
@@ -2747,10 +2241,7 @@
         "gv": 1,
         "visit": "MANJULA",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "VfB Pinet",
@@ -2758,10 +2249,7 @@
         "gv": 2,
         "visit": "Vigo Palace",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "PSOE",
@@ -2769,10 +2257,7 @@
         "gv": 3,
         "visit": "Girona F.C",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CASPA_FC",
@@ -2780,10 +2265,7 @@
         "gv": 1,
         "visit": "Zipo 10",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Lost2dRiver",
@@ -2791,10 +2273,7 @@
         "gv": 2,
         "visit": "Boneco093",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Envigado",
@@ -2802,10 +2281,7 @@
         "gv": 1,
         "visit": "Malaguti F.C",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "GuaCaMaYoS",
@@ -2813,10 +2289,7 @@
         "gv": 1,
         "visit": "DOSSIS.ES",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Phoenix FC",
@@ -2824,10 +2297,7 @@
         "gv": 2,
         "visit": "A.D. Ceuta",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Melilla FC",
@@ -2835,10 +2305,7 @@
         "gv": 1,
         "visit": "Giulia Almer",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Rosario Ar",
@@ -2846,10 +2313,7 @@
         "gv": 1,
         "visit": "Armrodgon",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Batet",
@@ -2857,10 +2321,7 @@
         "gv": 3,
         "visit": "RUMBERAS",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "C.E. Mataro",
@@ -2868,10 +2329,7 @@
         "gv": 0,
         "visit": "Verdes fc",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "TINTIN",
@@ -2879,10 +2337,7 @@
         "gv": 1,
         "visit": "punta F.C.",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Squirrel F.C",
@@ -2890,10 +2345,7 @@
         "gv": 2,
         "visit": "trivinet.com",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "FC.Petrus",
@@ -2901,10 +2353,7 @@
         "gv": 4,
         "visit": "Bayonja FC",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Real Munilla",
@@ -2912,10 +2361,7 @@
         "gv": 0,
         "visit": "Parleste FC",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Atl. Tradis",
@@ -2923,10 +2369,7 @@
         "gv": 0,
         "visit": "La elite",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "DeportivoHur",
@@ -2934,10 +2377,7 @@
         "gv": 1,
         "visit": "jionde",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "GusanosButia",
@@ -2945,10 +2385,7 @@
         "gv": 1,
         "visit": "Pto Sagunto",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Pakete.f.c",
@@ -2956,10 +2393,7 @@
         "gv": 1,
         "visit": "Los Peluches",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "The boss",
@@ -2967,10 +2401,7 @@
         "gv": 0,
         "visit": "Hachis",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Huesconsin",
@@ -2978,10 +2409,7 @@
         "gv": 0,
         "visit": "VALLE SFC",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CF Se queda",
@@ -2989,10 +2417,7 @@
         "gv": 0,
         "visit": "Orlando red",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Inter Alcala",
@@ -3000,10 +2425,7 @@
         "gv": 0,
         "visit": "YALMAKAN FC",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "FC Algeciras",
@@ -3011,10 +2433,7 @@
         "gv": 1,
         "visit": "Billabona",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Werewolves",
@@ -3022,10 +2441,7 @@
         "gv": 1,
         "visit": "Kamchatka",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "InterStar",
@@ -3033,10 +2449,7 @@
         "gv": 1,
         "visit": "VamosLega",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "San Anton",
@@ -3044,10 +2457,7 @@
         "gv": 1,
         "visit": "Floren Team",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Humboldt FC",
@@ -3055,10 +2465,7 @@
         "gv": 1,
         "visit": "Ribe Utd",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "The Kies",
@@ -3066,10 +2473,7 @@
         "gv": 0,
         "visit": "TrainingTime",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Eresma C.F",
@@ -3077,10 +2481,7 @@
         "gv": 2,
         "visit": "ARCANGEL",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "los peques",
@@ -3088,10 +2489,7 @@
         "gv": 2,
         "visit": "CF NouBarris",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Stralis FC",
@@ -3099,10 +2497,7 @@
         "gv": 3,
         "visit": "La Eternidad",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "ikeryna",
@@ -3110,10 +2505,7 @@
         "gv": 2,
         "visit": "UDFurtaPeras",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Velez",
@@ -3121,10 +2513,7 @@
         "gv": 2,
         "visit": "Raudex",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "FC MAXIM05",
@@ -3132,10 +2521,7 @@
         "gv": 3,
         "visit": "Laboure CF",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "F.C.B. FISH",
@@ -3143,10 +2529,7 @@
         "gv": 1,
         "visit": "Águilas",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "SHOHOKU",
@@ -3154,10 +2537,7 @@
         "gv": 3,
         "visit": "SD Brion",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Hospitalet",
@@ -3165,10 +2545,7 @@
         "gv": 2,
         "visit": "The Cannibal",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Box Lunch",
@@ -3176,10 +2553,7 @@
         "gv": 2,
         "visit": "kanpest",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "añuroc al",
@@ -3187,10 +2561,7 @@
         "gv": 0,
         "visit": "Rointe UD",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "O Mapelli",
@@ -3198,10 +2569,7 @@
         "gv": 0,
         "visit": "F.C.Sharkers",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Puigvertenc",
@@ -3209,10 +2577,7 @@
         "gv": 0,
         "visit": "NakedCity",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CP Monte",
@@ -3220,21 +2585,7 @@
         "gv": 1,
         "visit": "The Tenors",
         "jornada": 3,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 3",
-        "match_type": "REGULAR"
-    },
-    {
-        "local": "Local",
-        "gl": 0,
-        "gv": 0,
-        "visit": "Visitante",
-        "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "SD Brion",
@@ -3242,10 +2593,7 @@
         "gv": 0,
         "visit": "Kaizer FC",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Laboure CF",
@@ -3253,10 +2601,7 @@
         "gv": 0,
         "visit": "R.Quimeras",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CSKargos",
@@ -3264,10 +2609,7 @@
         "gv": 3,
         "visit": "TAZZX",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "EL PUERTO",
@@ -3275,10 +2617,7 @@
         "gv": 0,
         "visit": "Coca Jrs.",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Raudex",
@@ -3286,10 +2625,7 @@
         "gv": 1,
         "visit": "Los Mochil",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "ARCANGEL",
@@ -3297,10 +2633,7 @@
         "gv": 0,
         "visit": "Montoya Ut",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CF NouBarris",
@@ -3308,10 +2641,7 @@
         "gv": 2,
         "visit": "Jager United",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "La Eternidad",
@@ -3319,10 +2649,7 @@
         "gv": 2,
         "visit": "Residuales",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "TrainingTime",
@@ -3330,10 +2657,7 @@
         "gv": 1,
         "visit": "tetoteam",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "UDFurtaPeras",
@@ -3341,10 +2665,7 @@
         "gv": 1,
         "visit": "DRAGONBOL",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Kamchatka",
@@ -3352,10 +2673,7 @@
         "gv": 2,
         "visit": "Lebowsky FC",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Ribe Utd",
@@ -3363,10 +2681,7 @@
         "gv": 3,
         "visit": "Errantes F.C",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Normandos",
@@ -3374,10 +2689,7 @@
         "gv": 0,
         "visit": "Jambos Locos",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "VamosLega",
@@ -3385,10 +2697,7 @@
         "gv": 1,
         "visit": "C.D. Aragon",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Floren Team",
@@ -3396,10 +2705,7 @@
         "gv": 2,
         "visit": "CD Dimoni",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Los Peluches",
@@ -3407,10 +2713,7 @@
         "gv": 2,
         "visit": "URUGUAYOS FC",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "FC PICASSO",
@@ -3418,10 +2721,7 @@
         "gv": 2,
         "visit": "Sabadell F.C",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "VALLE SFC",
@@ -3429,10 +2729,7 @@
         "gv": 0,
         "visit": "balmes.c.f",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Orlando red",
@@ -3440,10 +2737,7 @@
         "gv": 2,
         "visit": "Piratas",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Rapapolvo FC",
@@ -3451,10 +2745,7 @@
         "gv": 4,
         "visit": "Wataru CF",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Bayonja FC",
@@ -3462,10 +2753,7 @@
         "gv": 1,
         "visit": "4VKS",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Parleste FC",
@@ -3473,10 +2761,7 @@
         "gv": 2,
         "visit": "Talavera CF",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Pto Sagunto",
@@ -3484,10 +2769,7 @@
         "gv": 2,
         "visit": "Gran Canaria",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "La elite",
@@ -3495,10 +2777,7 @@
         "gv": 1,
         "visit": "Jabberwocky",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "jionde",
@@ -3506,10 +2785,7 @@
         "gv": 3,
         "visit": "SrMortred",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "punta F.C.",
@@ -3517,10 +2793,7 @@
         "gv": 1,
         "visit": "VfB Pinet",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "trivinet.com",
@@ -3528,10 +2801,7 @@
         "gv": 2,
         "visit": "Clembuterol",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Verdes fc",
@@ -3539,10 +2809,7 @@
         "gv": 0,
         "visit": "PSOE",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "RUMBERAS",
@@ -3550,10 +2817,7 @@
         "gv": 3,
         "visit": "CASPA_FC",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Armrodgon",
@@ -3561,10 +2825,7 @@
         "gv": 0,
         "visit": "Porlaromy",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "A.D. Ceuta",
@@ -3572,10 +2833,7 @@
         "gv": 0,
         "visit": "O Mapelli",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "DOSSIS.ES",
@@ -3583,10 +2841,7 @@
         "gv": 2,
         "visit": "añuroc al",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Boneco093",
@@ -3594,10 +2849,7 @@
         "gv": 2,
         "visit": "buitres",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Malaguti F.C",
@@ -3605,10 +2857,7 @@
         "gv": 1,
         "visit": "CP Monte",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Giulia Almer",
@@ -3616,10 +2865,7 @@
         "gv": 2,
         "visit": "Puigvertenc",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "SASIJAINKO",
@@ -3627,10 +2873,7 @@
         "gv": 4,
         "visit": "Squirrel F.C",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Vigo Palace",
@@ -3638,10 +2881,7 @@
         "gv": 4,
         "visit": "C.E. Mataro",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "MANJULA",
@@ -3649,10 +2889,7 @@
         "gv": 1,
         "visit": "TINTIN",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Zipo 10",
@@ -3660,10 +2897,7 @@
         "gv": 0,
         "visit": "Rosario Ar",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Girona F.C",
@@ -3671,10 +2905,7 @@
         "gv": 0,
         "visit": "Cuellar",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "SD Burela",
@@ -3682,10 +2913,7 @@
         "gv": 3,
         "visit": "Narón Utd.",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Whiteam",
@@ -3693,10 +2921,7 @@
         "gv": 2,
         "visit": "Real Munilla",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CHEEKS",
@@ -3704,10 +2929,7 @@
         "gv": 3,
         "visit": "Atl. Tradis",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Xomi",
@@ -3715,10 +2937,7 @@
         "gv": 4,
         "visit": "DeportivoHur",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Los Boliches",
@@ -3726,10 +2945,7 @@
         "gv": 1,
         "visit": "GusanosButia",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "oviedopool",
@@ -3737,10 +2953,7 @@
         "gv": 3,
         "visit": "CF Se queda",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Ituteam",
@@ -3748,10 +2961,7 @@
         "gv": 1,
         "visit": "Inter Alcala",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "flaret",
@@ -3759,10 +2969,7 @@
         "gv": 2,
         "visit": "Pakete.f.c",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Trivium",
@@ -3770,10 +2977,7 @@
         "gv": 2,
         "visit": "Huesconsin",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "puchero CF",
@@ -3781,10 +2985,7 @@
         "gv": 1,
         "visit": "The boss",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "MugiwaraTeam",
@@ -3792,10 +2993,7 @@
         "gv": 0,
         "visit": "San Anton",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Tifosi FC",
@@ -3803,10 +3001,7 @@
         "gv": 0,
         "visit": "FC Algeciras",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "FERZA TEAM",
@@ -3814,10 +3009,7 @@
         "gv": 1,
         "visit": "Werewolves",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Berdica Fc",
@@ -3825,10 +3017,7 @@
         "gv": 2,
         "visit": "InterStar",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "skuirlys 2.0",
@@ -3836,10 +3025,7 @@
         "gv": 0,
         "visit": "Humboldt FC",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Barderos FC",
@@ -3847,10 +3033,7 @@
         "gv": 1,
         "visit": "Stralis FC",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Inde FC",
@@ -3858,10 +3041,7 @@
         "gv": 2,
         "visit": "The Kies",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Diplo F.C.",
@@ -3869,10 +3049,7 @@
         "gv": 0,
         "visit": "ikeryna",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Dep. Cigota",
@@ -3880,10 +3057,7 @@
         "gv": 1,
         "visit": "Eresma C.F",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "VodkaLimon",
@@ -3891,10 +3065,7 @@
         "gv": 2,
         "visit": "los peques",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Galactik Foo",
@@ -3902,10 +3073,7 @@
         "gv": 1,
         "visit": "Hospitalet",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Protomech FC",
@@ -3913,10 +3081,7 @@
         "gv": 1,
         "visit": "F.C.B. FISH",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "ESPADA F.C.",
@@ -3924,10 +3089,7 @@
         "gv": 3,
         "visit": "Velez",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Martorell",
@@ -3935,10 +3097,7 @@
         "gv": 2,
         "visit": "JORDIER",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Barrabases",
@@ -3946,10 +3105,7 @@
         "gv": 2,
         "visit": "FC MAXIM05",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "NakedCity",
@@ -3957,10 +3113,7 @@
         "gv": 4,
         "visit": "Lost2dRiver",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Rointe UD",
@@ -3968,10 +3121,7 @@
         "gv": 2,
         "visit": "Envigado",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "kanpest",
@@ -3979,10 +3129,7 @@
         "gv": 0,
         "visit": "GuaCaMaYoS",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "The Tenors",
@@ -3990,10 +3137,7 @@
         "gv": 2,
         "visit": "Phoenix FC",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "F.C.Sharkers",
@@ -4001,21 +3145,7 @@
         "gv": 1,
         "visit": "Astracan",
         "jornada": 4,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 4",
-        "match_type": "REGULAR"
-    },
-    {
-        "local": "Local",
-        "gl": 0,
-        "gv": 0,
-        "visit": "Visitante",
-        "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "TAZZX",
@@ -4023,10 +3153,7 @@
         "gv": 3,
         "visit": "O Mapelli",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Kaizer FC",
@@ -4034,10 +3161,7 @@
         "gv": 0,
         "visit": "añuroc al",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Los Mochil",
@@ -4045,10 +3169,7 @@
         "gv": 2,
         "visit": "Box Lunch",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "R.Quimeras",
@@ -4056,10 +3177,7 @@
         "gv": 1,
         "visit": "UTOPIC",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Coca Jrs.",
@@ -4067,10 +3185,7 @@
         "gv": 2,
         "visit": "Puigvertenc",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Montoya Ut",
@@ -4078,10 +3193,7 @@
         "gv": 1,
         "visit": "Hospitalet",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "DRAGONBOL",
@@ -4089,10 +3201,7 @@
         "gv": 3,
         "visit": "Rara Avis",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Jager United",
@@ -4100,10 +3209,7 @@
         "gv": 1,
         "visit": "Velez",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "tetoteam",
@@ -4111,10 +3217,7 @@
         "gv": 1,
         "visit": "SHOHOKU",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Residuales",
@@ -4122,10 +3225,7 @@
         "gv": 2,
         "visit": "FC MAXIM05",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "VodkaLimon",
@@ -4133,10 +3233,7 @@
         "gv": 1,
         "visit": "kanpest",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Inde FC",
@@ -4144,10 +3241,7 @@
         "gv": 2,
         "visit": "Almodovar CF",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Diplo F.C.",
@@ -4155,10 +3249,7 @@
         "gv": 1,
         "visit": "F.C.Sharkers",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Barderos FC",
@@ -4166,10 +3257,7 @@
         "gv": 2,
         "visit": "NakedCity",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "C.D.Tenerife",
@@ -4177,10 +3265,7 @@
         "gv": 1,
         "visit": "The Tenors",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "balmes.c.f",
@@ -4188,10 +3273,7 @@
         "gv": 1,
         "visit": "San Anton",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Sabadell F.C",
@@ -4199,10 +3281,7 @@
         "gv": 0,
         "visit": "FC Algeciras",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Meque",
@@ -4210,10 +3289,7 @@
         "gv": 3,
         "visit": "Werewolves",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Wataru CF",
@@ -4221,10 +3297,7 @@
         "gv": 1,
         "visit": "InterStar",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Piratas",
@@ -4232,10 +3305,7 @@
         "gv": 0,
         "visit": "Humboldt FC",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Gran Canaria",
@@ -4243,10 +3313,7 @@
         "gv": 2,
         "visit": "CF Se queda",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Talavera CF",
@@ -4254,10 +3321,7 @@
         "gv": 1,
         "visit": "Inter Alcala",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "4VKS",
@@ -4265,10 +3329,7 @@
         "gv": 0,
         "visit": "Pakete.f.c",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Jabberwocky",
@@ -4276,10 +3337,7 @@
         "gv": 1,
         "visit": "The boss",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "mesqunclub",
@@ -4287,10 +3345,7 @@
         "gv": 2,
         "visit": "Huesconsin",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Clembuterol",
@@ -4298,10 +3353,7 @@
         "gv": 3,
         "visit": "Atl. Tradis",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "PSOE",
@@ -4309,10 +3361,7 @@
         "gv": 0,
         "visit": "Real Munilla",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CASPA_FC",
@@ -4320,10 +3369,7 @@
         "gv": 3,
         "visit": "GusanosButia",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Dinastia FC",
@@ -4331,10 +3377,7 @@
         "gv": 3,
         "visit": "DeportivoHur",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "VfB Pinet",
@@ -4342,10 +3385,7 @@
         "gv": 0,
         "visit": "TeamAndoni",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Lebowsky FC",
@@ -4353,10 +3393,7 @@
         "gv": 2,
         "visit": "Lost2dRiver",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Jambos Locos",
@@ -4364,10 +3401,7 @@
         "gv": 2,
         "visit": "Envigado",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "C.D. Aragon",
@@ -4375,10 +3409,7 @@
         "gv": 2,
         "visit": "GuaCaMaYoS",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Errantes F.C",
@@ -4386,10 +3417,7 @@
         "gv": 2,
         "visit": "Phoenix FC",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CD Dimoni",
@@ -4397,10 +3425,7 @@
         "gv": 0,
         "visit": "Astracan",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Rosario Ar",
@@ -4408,10 +3433,7 @@
         "gv": 0,
         "visit": "Stralis FC",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Cuellar",
@@ -4419,10 +3441,7 @@
         "gv": 1,
         "visit": "The Kies",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Squirrel F.C",
@@ -4430,10 +3449,7 @@
         "gv": 1,
         "visit": "ikeryna",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "C.E. Mataro",
@@ -4441,10 +3457,7 @@
         "gv": 1,
         "visit": "Eresma C.F",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "TINTIN",
@@ -4452,10 +3465,7 @@
         "gv": 1,
         "visit": "los peques",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Tifosi FC",
@@ -4463,10 +3473,7 @@
         "gv": 1,
         "visit": "TrainingTime",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "FERZA TEAM",
@@ -4474,10 +3481,7 @@
         "gv": 3,
         "visit": "ARCANGEL",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Berdica Fc",
@@ -4485,10 +3489,7 @@
         "gv": 1,
         "visit": "CF NouBarris",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "MugiwaraTeam",
@@ -4496,10 +3497,7 @@
         "gv": 3,
         "visit": "La Eternidad",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Uchi-mata",
@@ -4507,10 +3505,7 @@
         "gv": 3,
         "visit": "F.C.Masaos",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Galactik Foo",
@@ -4518,10 +3513,7 @@
         "gv": 0,
         "visit": "Los Peluches",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Martorell",
@@ -4529,10 +3521,7 @@
         "gv": 0,
         "visit": "FC PICASSO",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "ESPADA F.C.",
@@ -4540,10 +3529,7 @@
         "gv": 2,
         "visit": "VALLE SFC",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Barrabases",
@@ -4551,10 +3537,7 @@
         "gv": 1,
         "visit": "Orlando red",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Protomech FC",
@@ -4562,10 +3545,7 @@
         "gv": 0,
         "visit": "Rapapolvo FC",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Kamchatka",
@@ -4573,10 +3553,7 @@
         "gv": 1,
         "visit": "Raudex",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Ribe Utd",
@@ -4584,10 +3561,7 @@
         "gv": 2,
         "visit": "The Cannibal",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "VamosLega",
@@ -4595,10 +3569,7 @@
         "gv": 2,
         "visit": "Águilas",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Billabona",
@@ -4606,10 +3577,7 @@
         "gv": 1,
         "visit": "EL PUERTO",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Normandos",
@@ -4617,10 +3585,7 @@
         "gv": 2,
         "visit": "CSKargos",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Trivium",
@@ -4628,10 +3593,7 @@
         "gv": 1,
         "visit": "Bayonja FC",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Ituteam",
@@ -4639,10 +3601,7 @@
         "gv": 0,
         "visit": "Parleste FC",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "flaret",
@@ -4650,10 +3609,7 @@
         "gv": 3,
         "visit": "La elite",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "oviedopool",
@@ -4661,10 +3617,7 @@
         "gv": 3,
         "visit": "jionde",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Palermitano",
@@ -4672,10 +3625,7 @@
         "gv": 2,
         "visit": "Pto Sagunto",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "SD Burela",
@@ -4683,10 +3633,7 @@
         "gv": 4,
         "visit": "Armrodgon",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Whiteam",
@@ -4694,10 +3641,7 @@
         "gv": 2,
         "visit": "RUMBERAS",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CHEEKS",
@@ -4705,10 +3649,7 @@
         "gv": 1,
         "visit": "Verdes fc",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Xomi",
@@ -4716,10 +3657,7 @@
         "gv": 3,
         "visit": "punta F.C.",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Los Boliches",
@@ -4727,10 +3665,7 @@
         "gv": 2,
         "visit": "trivinet.com",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Girona F.C",
@@ -4738,10 +3673,7 @@
         "gv": 1,
         "visit": "Boneco093",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "SASIJAINKO",
@@ -4749,10 +3681,7 @@
         "gv": 3,
         "visit": "Malaguti F.C",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "MANJULA",
@@ -4760,10 +3689,7 @@
         "gv": 0,
         "visit": "DOSSIS.ES",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Zipo 10",
@@ -4771,10 +3697,7 @@
         "gv": 2,
         "visit": "A.D. Ceuta",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Vigo Palace",
@@ -4782,1172 +3705,1043 @@
         "gv": 1,
         "visit": "Giulia Almer",
         "jornada": 5,
-        "group": null,
-        "is_scheduled": false,
-        "phase_name": "Jornada 5",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Atl. Tradis",
-        "gl": null,
-        "gv": null,
+        "gl": 3,
+        "gv": 0,
         "visit": "Kaizer FC",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "GusanosButia",
-        "gl": null,
-        "gv": null,
+        "gl": 3,
+        "gv": 0,
         "visit": "R.Quimeras",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Real Munilla",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 2,
         "visit": "TAZZX",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "DeportivoHur",
-        "gl": null,
-        "gv": null,
+        "gl": 3,
+        "gv": 1,
         "visit": "Coca Jrs.",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Narón Utd.",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 1,
         "visit": "Los Mochil",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Box Lunch",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 2,
         "visit": "Montoya Ut",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "añuroc al",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 3,
         "visit": "Jager United",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CP Monte",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 2,
         "visit": "Residuales",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "O Mapelli",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 0,
         "visit": "tetoteam",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Puigvertenc",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 1,
         "visit": "DRAGONBOL",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "JORDIER",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 1,
         "visit": "Volendam FC",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Hospitalet",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 3,
         "visit": "Errantes F.C",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "F.C.B. FISH",
-        "gl": null,
-        "gv": null,
+        "gl": 0,
+        "gv": 3,
         "visit": "Lebowsky FC",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Rara Avis",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 4,
         "visit": "C.D. Aragon",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Velez",
-        "gl": null,
-        "gv": null,
+        "gl": 3,
+        "gv": 2,
         "visit": "CD Dimoni",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Eresma C.F",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 0,
         "visit": "URUGUAYOS FC",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "los peques",
-        "gl": null,
-        "gv": null,
+        "gl": 0,
+        "gv": 4,
         "visit": "Sabadell F.C",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "The Kies",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 1,
         "visit": "balmes.c.f",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "C.D. Lugo",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 4,
         "visit": "Piratas",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Stralis FC",
-        "gl": null,
-        "gv": null,
+        "gl": 0,
+        "gv": 1,
         "visit": "Wataru CF",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Werewolves",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 0,
         "visit": "4VKS",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Luismi F.C",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 0,
         "visit": "mesqunclub",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "InterStar",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 4,
         "visit": "Andalus C.D.",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "San Anton",
-        "gl": null,
-        "gv": null,
+        "gl": 0,
+        "gv": 1,
         "visit": "Jabberwocky",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "FC Algeciras",
-        "gl": null,
-        "gv": null,
+        "gl": 0,
+        "gv": 1,
         "visit": "SrMortred",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Lost2dRiver",
-        "gl": null,
-        "gv": null,
+        "gl": 0,
+        "gv": 1,
         "visit": "VfB Pinet",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Envigado",
-        "gl": null,
-        "gv": null,
+        "gl": 0,
+        "gv": 1,
         "visit": "Clembuterol",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "GuaCaMaYoS",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 1,
         "visit": "PSOE",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Phoenix FC",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 1,
         "visit": "CASPA_FC",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Astracan",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 3,
         "visit": "Porlaromy",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CF Se queda",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 0,
         "visit": "Squirrel F.C",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "The boss",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 2,
         "visit": "C.E. Mataro",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Pakete.f.c",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 4,
         "visit": "TINTIN",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Huesconsin",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 2,
         "visit": "Joint Boys",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Inter Alcala",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 2,
         "visit": "Rosario Ar",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "kanpest",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 3,
         "visit": "ESPADA F.C.",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "F.C.Sharkers",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 2,
         "visit": "Galactik Foo",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Rointe UD",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 2,
         "visit": "Barrabases",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "The Tenors",
-        "gl": null,
-        "gv": null,
+        "gl": 0,
+        "gv": 2,
         "visit": "Protomech FC",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "NakedCity",
-        "gl": null,
-        "gv": null,
+        "gl": 0,
+        "gv": 1,
         "visit": "Martorell",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "La Eternidad",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 2,
         "visit": "Dep. Cigota",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "F.C.Masaos",
-        "gl": null,
-        "gv": null,
+        "gl": 3,
+        "gv": 1,
         "visit": "Inde FC",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "TrainingTime",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 1,
         "visit": "Diplo F.C.",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "ARCANGEL",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 3,
         "visit": "VodkaLimon",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "PCaio",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 2,
         "visit": "C.D.Tenerife",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "LUKINI",
-        "gl": null,
-        "gv": null,
+        "gl": 0,
+        "gv": 1,
         "visit": "Berdica Fc",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Giulia Almer",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 0,
         "visit": "skuirlys 2.0",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "A.D. Ceuta",
-        "gl": null,
-        "gv": null,
+        "gl": 3,
+        "gv": 2,
         "visit": "MugiwaraTeam",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Malaguti F.C",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 2,
         "visit": "Uchi-mata",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "DOSSIS.ES",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 1,
         "visit": "FERZA TEAM",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "punta F.C.",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 1,
         "visit": "flaret",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Verdes fc",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 0,
         "visit": "puchero CF",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "trivinet.com",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 0,
         "visit": "oviedopool",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Armrodgon",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 2,
         "visit": "Ituteam",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "RUMBERAS",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 2,
         "visit": "Trivium",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Bayonja FC",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 0,
         "visit": "SD Burela",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Parleste FC",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 1,
         "visit": "Whiteam",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Pto Sagunto",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 1,
         "visit": "CHEEKS",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "jionde",
-        "gl": null,
-        "gv": null,
+        "gl": 3,
+        "gv": 1,
         "visit": "Xomi",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "La elite",
-        "gl": null,
-        "gv": null,
+        "gl": 3,
+        "gv": 1,
         "visit": "Los Boliches",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "EL PUERTO",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 2,
         "visit": "SASIJAINKO",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Laboure CF",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 1,
         "visit": "MANJULA",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Águilas",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 1,
         "visit": "Vigo Palace",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Raudex",
-        "gl": null,
-        "gv": null,
+        "gl": 0,
+        "gv": 1,
         "visit": "Girona F.C",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "CSKargos",
-        "gl": null,
-        "gv": null,
+        "gl": 0,
+        "gv": 2,
         "visit": "Zipo 10",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Los Peluches",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 2,
         "visit": "Billabona",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "FC PICASSO",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 1,
         "visit": "Kamchatka",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "VALLE SFC",
-        "gl": null,
-        "gv": null,
+        "gl": 1,
+        "gv": 1,
         "visit": "VamosLega",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Orlando red",
-        "gl": null,
-        "gv": null,
+        "gl": 2,
+        "gv": 3,
         "visit": "Floren Team",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     },
     {
         "local": "Rapapolvo FC",
-        "gl": null,
-        "gv": null,
+        "gl": 0,
+        "gv": 2,
         "visit": "Ribe Utd",
         "jornada": 6,
-        "group": null,
-        "is_scheduled": true,
-        "phase_name": "Jornada 6",
-        "match_type": "REGULAR"
+        "is_scheduled": false
     }
 ];
-        // [INJECT_CALENDAR_DATA]
-        const CALENDAR_MATCHES = [];
 
-        // --- VARIABLES GLOBALES DE ESTADO ---
+        // Variables Globales
         let clubToSelectionMap = {};
-        let selectionMatchGoalsCache = {}; // Cache para resultados de Selecciones
-        let clubResultsByJornadaCache = {}; // Cache para resultados por jornada
-        let sortedJornadas = []; // Array de números de jornada ordenado (descendente)
-        let currentJornadaIndex = 0; // Índice de la jornada actual a mostrar (0 es la más reciente)
+        let selectionMatchGoalsCache = {};
+        let clubResultsByJornadaCache = {};
+        let sortedJornadas = [];
+        let currentJornadaIndex = 0;
 
-        // --- FUNCIÓN DE SETUP INICIAL ---
+        // Configuración Fases
+        const STAGE_NAMES = {
+            7: "Repesca", 8: "Octavos - Ida", 9: "Octavos - Vuelta",
+            10: "Cuartos - Ida", 11: "Cuartos - Vuelta",
+            12: "Semis - Ida", 13: "Semis - Vuelta", 14: "Final"
+        };
+        const PHASE_CFG = {
+            repesca: { jornadas: [7], type: 'single' },
+            octavos: { jornadas: [8,9], type: 'aggregate' },
+            cuartos: { jornadas: [10,11], type: 'aggregate' },
+            semis:   { jornadas: [12,13], type: 'aggregate' },
+            final:   { jornadas: [14], type: 'single' }
+        };
+        const REPESCA_PAIRS = {
+            'A': {h:9, l:24}, 'B': {h:10, l:23}, 'C': {h:11, l:22}, 'D': {h:12, l:21},
+            'E': {h:13, l:20}, 'F': {h:14, l:19}, 'G': {h:15, l:18}, 'H': {h:16, l:17}
+        };
+        const BRACKET_LAYOUT = [
+            { row: 1, oct: 1, rep: 'H' }, { row: 2, oct: 8, rep: 'A' },
+            { row: 3, oct: 4, rep: 'E' }, { row: 4, oct: 5, rep: 'D' },
+            { row: 5, oct: 2, rep: 'G' }, { row: 6, oct: 7, rep: 'B' },
+            { row: 7, oct: 3, rep: 'F' }, { row: 8, oct: 6, rep: 'C' }
+        ];
+
+        // --- INICIO ---
+        function initializeApp() {
+            if (TEAMS_CONFIG.length === 0 || MATCH_RESULTS.length === 0) return;
+            setupData();
+            const stats = calculateStats();
+            
+            sortedJornadas = Object.keys(stats.clubResultsByJornada).map(Number).sort((a, b) => b - a); 
+            currentJornadaIndex = 0; 
+
+            renderClassification(stats.finalClassification);
+            renderResults(stats.clubResultsByJornada);
+            renderBracketGrid(stats.finalClassification);
+        }
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
         function setupData() {
-            TEAMS_CONFIG.forEach(selection => {
-                selection.clubs.forEach(club => {
-                    clubToSelectionMap[club.trim()] = selection.name.trim();
-                });
-            });
+            TEAMS_CONFIG.forEach(s => s.clubs.forEach(c => clubToSelectionMap[c.trim()] = s.name.trim()));
         }
+        function getSel(club) { return clubToSelectionMap[club.trim()] || 'Desconocido'; }
 
-        function getSelectionByClub(clubName) {
-            return clubToSelectionMap[clubName.trim()] || 'Desconocido';
-        }
-
-        /**
-         * Calcula la clasificación y los resultados agregados.
-         */
+        // --- CÁLCULOS ---
         function calculateStats() {
             if (sortedJornadas.length > 0) {
                 return { 
                     finalClassification: getClassificationArray(selectionMatchGoalsCache), 
-                    clubResultsByJornada: clubResultsByJornadaCache, 
-                    selectionMatchGoals: selectionMatchGoalsCache 
+                    clubResultsByJornada: clubResultsByJornadaCache
                 };
             }
-            
-            const selectionMatchGoals = {}; 
-            const clubResultsByJornada = {}; 
+            const selGoals = {}; 
+            const clubJ = {}; 
+            const MAX_J = 6; 
 
-            // 1. Agregación de resultados de clubes a nivel de Selección
             MATCH_RESULTS.forEach(match => {
-                const homeSel = getSelectionByClub(match.local);
-                const awaySel = getSelectionByClub(match.visit);
-                const jornada = match.jornada;
+                const h = getSel(match.local); const v = getSel(match.visit);
+                if (h === 'Desconocido' || v === 'Desconocido' || h === v) return;
 
-                // Preparamos los datos para visualización (comunes a todas las fases)
-                const matchDisplayData = { 
-                    jornada: match.jornada, 
-                    local: match.local, 
-                    gl: match.gl, 
-                    gv: match.gv, 
-                    visit: match.visit, 
-                    homeSel: homeSel, 
-                    awaySel: awaySel,
-                    is_scheduled: match.is_scheduled === true,
-                    // Aseguramos que estos campos existan siempre
-                    phase_name: match.phase_name || `Jornada ${match.jornada}`,
-                    match_type: match.match_type || 'REGULAR'
-                };
-
-                // CASO 1: FASE ELIMINATORIA (> 6) -> NO SUMA PUNTOS
-                if (match.jornada > 6) {
-                    clubResultsByJornada[match.jornada] = clubResultsByJornada[match.jornada] || [];
-                    clubResultsByJornada[match.jornada].push(matchDisplayData);
-                    return; // Salimos para no sumar puntos a la tabla
-                }
-
-                // CASO 2: FASE REGULAR (<= 6) -> SÍ SUMA PUNTOS
-                if (homeSel === 'Desconocido' || awaySel === 'Desconocido' || homeSel === awaySel) {
-                    return;
-                }
-
-                if (match.is_scheduled !== true) {
-                    const gL = match.gl;
-                    const gV = match.gv;
-                    const homeClubWin = gL > gV ? 1 : 0;
-                    const awayClubWin = gV > gL ? 1 : 0;
+                // 1. Clasificación (J1-J6, no agendado)
+                if (match.is_scheduled !== true && match.jornada <= MAX_J) {
+                    const gL = match.gl; const gV = match.gv;
+                    const hWin = gL > gV ? 1 : 0; const aWin = gV > gL ? 1 : 0;
                     
-                    selectionMatchGoals[homeSel] = selectionMatchGoals[homeSel] || {};
-                    selectionMatchGoals[awaySel] = selectionMatchGoals[awaySel] || {};
-                    
-                    const initMatchStats = { Wins_S: 0, Wins_C: 0, Total_GF: 0, Total_GC: 0 };
-                    selectionMatchGoals[homeSel][awaySel] = selectionMatchGoals[homeSel][awaySel] || { ...initMatchStats };
-                    selectionMatchGoals[awaySel][homeSel] = selectionMatchGoals[awaySel][homeSel] || { ...initMatchStats };
+                    selGoals[h] = selGoals[h] || {}; selGoals[v] = selGoals[v] || {};
+                    const init = { Wins_S: 0, Wins_C: 0, Total_GF: 0, Total_GC: 0 };
+                    selGoals[h][v] = selGoals[h][v] || { ...init }; selGoals[v][h] = selGoals[v][h] || { ...init };
 
-                    selectionMatchGoals[homeSel][awaySel].Wins_S += homeClubWin;
-                    selectionMatchGoals[homeSel][awaySel].Wins_C += awayClubWin;
-                    selectionMatchGoals[homeSel][awaySel].Total_GF += gL; 
-                    selectionMatchGoals[homeSel][awaySel].Total_GC += gV; 
+                    selGoals[h][v].Wins_S += hWin; selGoals[h][v].Wins_C += aWin;
+                    selGoals[h][v].Total_GF += gL; selGoals[h][v].Total_GC += gV; 
                     
-                    selectionMatchGoals[awaySel][homeSel].Wins_S += awayClubWin;
-                    selectionMatchGoals[awaySel][homeSel].Wins_C += homeClubWin;
-                    selectionMatchGoals[awaySel][homeSel].Total_GF += gV; 
-                    selectionMatchGoals[awaySel][homeSel].Total_GC += gL;
+                    selGoals[v][h].Wins_S += aWin; selGoals[v][h].Wins_C += hWin;
+                    selGoals[v][h].Total_GF += gV; selGoals[v][h].Total_GC += gL;
                 }
                 
-                // Guardamos para visualización también en fase regular
-                clubResultsByJornada[jornada] = clubResultsByJornada[jornada] || [];
-                clubResultsByJornada[jornada].push(matchDisplayData);
+                // 2. Resultados Visuales (Todos)
+                clubJ[match.jornada] = clubJ[match.jornada] || [];
+                clubJ[match.jornada].push({ ...match, homeSel: h, awaySel: v, is_scheduled: match.is_scheduled === true });
             });
             
-            selectionMatchGoalsCache = selectionMatchGoals;
-            clubResultsByJornadaCache = clubResultsByJornada;
-            const finalClassification = getClassificationArray(selectionMatchGoals);
-
-            return { finalClassification, clubResultsByJornada, selectionMatchGoals };
+            selectionMatchGoalsCache = selGoals;
+            clubResultsByJornadaCache = clubJ;
+            return { finalClassification: getClassificationArray(selGoals), clubResultsByJornada: clubJ };
         }
 
         function getClassificationArray(goalsData) {
-            const selectionStats = {};
-            const selectionNames = TEAMS_CONFIG.map(t => t.name.trim());
+            const stats = {};
+            TEAMS_CONFIG.forEach(t => {
+                stats[t.name.trim()] = { name: t.name.trim(), PJ: 0, G: 0, E: 0, P: 0, GF: 0, GC: 0, DG: 0, Sel_GF: 0, Sel_GC: 0, Sel_DG: 0, Pts: 0 };
+            });
             
-            selectionNames.forEach(selName => {
-                selectionStats[selName] = { 
-                    PJ: 0, G: 0, E: 0, P: 0, GF: 0, GC: 0, DG: 0, 
-                    Sel_GF: 0, Sel_GC: 0, Sel_DG: 0, Pts: 0
-                };
-                const opponents = goalsData[selName] || {};
-                
-                for (const opponentName in opponents) {
-                    const result = opponents[opponentName];
-                    selectionStats[selName].PJ += 1;
-                    selectionStats[selName].GF += result.Total_GF;
-                    selectionStats[selName].GC += result.Total_GC;
-                    selectionStats[selName].Sel_GF += result.Wins_S;
-                    selectionStats[selName].Sel_GC += result.Wins_C;
-
-                    if (result.Wins_S > result.Wins_C) {
-                        selectionStats[selName].G += 1; 
-                        selectionStats[selName].Pts += 3;
-                    } else if (result.Wins_S === result.Wins_C) {
-                        selectionStats[selName].E += 1; 
-                        selectionStats[selName].Pts += 1;
-                    } else {
-                        selectionStats[selName].P += 1;
-                    }
+            Object.keys(stats).forEach(selName => {
+                const opps = goalsData[selName] || {};
+                for (const oppName in opps) {
+                    const r = opps[oppName];
+                    stats[selName].PJ++;
+                    stats[selName].GF += r.Total_GF; stats[selName].GC += r.Total_GC;
+                    stats[selName].Sel_GF += r.Wins_S; stats[selName].Sel_GC += r.Wins_C;
+                    if (r.Wins_S > r.Wins_C) { stats[selName].G++; stats[selName].Pts += 3; } 
+                    else if (r.Wins_S === r.Wins_C) { stats[selName].E++; stats[selName].Pts += 1; } 
+                    else { stats[selName].P++; }
                 }
-                selectionStats[selName].DG = selectionStats[selName].GF - selectionStats[selName].GC;
-                selectionStats[selName].Sel_DG = selectionStats[selName].Sel_GF - selectionStats[selName].Sel_GC; 
+                stats[selName].DG = stats[selName].GF - stats[selName].GC;
+                stats[selName].Sel_DG = stats[selName].Sel_GF - stats[selName].Sel_GC; 
             });
 
-            const finalClassification = Object.keys(selectionStats).map(name => ({
-                name: name, ...selectionStats[name]
-            }));
-
-            finalClassification.sort((a, b) => {
+            const final = Object.values(stats);
+            final.sort((a, b) => {
                 if (b.Pts !== a.Pts) return b.Pts - a.Pts;
                 if (b.Sel_DG !== a.Sel_DG) return b.Sel_DG - a.Sel_DG;
                 if (b.Sel_GF !== a.Sel_GF) return b.Sel_GF - a.Sel_GF;
                 if (b.DG !== a.DG) return b.DG - a.DG;
                 return b.GF - a.GF;
             });
-            return finalClassification;
+            return final;
         }
 
-        function renderClassification(classification) {
-            const tableBody = document.getElementById('classification-table-body');
-            tableBody.innerHTML = ''; 
+        // --- RENDERIZADO BRACKET GRID ---
+        function renderBracketGrid(classification) {
+            const grid = document.getElementById('bracket-grid');
+            grid.innerHTML = '';
+            
+            // Arrays para guardar los ganadores y pasarlos a la siguiente ronda
+            const repescaWinners = {};
+            const octavosWinners = []; // Guardará 8 ganadores (indices 0-7)
+            const cuartosWinners = []; // Guardará 4 ganadores
+            const semisWinners = [];   // Guardará 2 ganadores
 
-            if (classification.length === 0) {
-                 tableBody.innerHTML = '<tr><td colspan="13" class="py-4 text-center text-gray-500">No hay datos de clasificación disponibles.</td></tr>';
-                 return;
+            // --- 1. REPESCA Y OCTAVOS (Llenado inicial) ---
+            BRACKET_LAYOUT.forEach((slot, index) => {
+                const rowIndex = index + 1;
+                
+                // A) REPESCA
+                const repKey = slot.rep;
+                const repCfg = REPESCA_PAIRS[repKey];
+                const repCard = createPhaseCard('repesca', classification, (matches) => {
+                    if(classification.length < 24) return null;
+                    const h = classification[repCfg.h-1].name; const l = classification[repCfg.l-1].name;
+                    return matches.find(m => (getSel(m.local)==h && getSel(m.visit)==l) || (getSel(m.local)==l && getSel(m.visit)==h));
+                }, {h: repCfg.h, l: repCfg.l, label: `Llave ${repKey}`});
+                
+                if (repCard.dataset.winner) repescaWinners[repKey] = repCard.dataset.winner;
+                placeInGrid(grid, repCard, 1, rowIndex, 1);
+
+                // B) OCTAVOS
+                const octCard = createPhaseCard('octavos', classification, (matches) => {
+                    if(classification.length < 8) return null;
+                    const s = classification[slot.oct-1].name;
+                    return matches.find(m => getSel(m.local)==s || getSel(m.visit)==s);
+                }, {
+                    h: slot.oct, 
+                    rivalName: repescaWinners[repKey] || null, 
+                    label: `vs Gan. ${repKey}`
+                });
+                
+                // Guardamos el ganador de este cruce de octavos (por índice del layout)
+                if (octCard.dataset.winner) octavosWinners[index] = octCard.dataset.winner;
+                placeInGrid(grid, octCard, 2, rowIndex, 1);
+            });
+
+            // --- 2. CUARTOS (Usando ganadores de Octavos) ---
+            for(let i=0; i<4; i++) {
+                // Cuartos 1 sale de Octavos 0 y 1. Cuartos 2 de Octavos 2 y 3, etc.
+                const teamA = octavosWinners[i*2];
+                const teamB = octavosWinners[i*2+1];
+
+                const qCard = createPhaseCard('cuartos', classification, (matches) => {
+                    // Solo buscamos partido real si tenemos LOS DOS equipos definidos
+                    if(!teamA || !teamB) return null;
+                    return matches.find(m => (getSel(m.local)==teamA && getSel(m.visit)==teamB) || (getSel(m.local)==teamB && getSel(m.visit)==teamA));
+                }, {
+                    // Datos para proyección si no hay partido real
+                    explicitA: teamA || "Gan. Octavos",
+                    explicitB: teamB || "Gan. Octavos",
+                    label: "Cuartos de Final"
+                });
+
+                if (qCard.dataset.winner) cuartosWinners[i] = qCard.dataset.winner;
+                placeInGrid(grid, qCard, 3, (i*2)+1, 2);
             }
 
+            // --- 3. SEMIS (Usando ganadores de Cuartos) ---
+            for(let i=0; i<2; i++) {
+                const teamA = cuartosWinners[i*2];
+                const teamB = cuartosWinners[i*2+1];
+
+                const sCard = createPhaseCard('semis', classification, (matches) => {
+                    if(!teamA || !teamB) return null;
+                    return matches.find(m => (getSel(m.local)==teamA && getSel(m.visit)==teamB) || (getSel(m.local)==teamB && getSel(m.visit)==teamA));
+                }, {
+                    explicitA: teamA || "Gan. Cuartos",
+                    explicitB: teamB || "Gan. Cuartos",
+                    label: "Semifinal"
+                });
+
+                if (sCard.dataset.winner) semisWinners[i] = sCard.dataset.winner;
+                placeInGrid(grid, sCard, 4, (i*4)+1, 4);
+            }
+
+            // --- 4. FINAL (Usando ganadores de Semis) ---
+            const teamA = semisWinners[0];
+            const teamB = semisWinners[1];
+            const fCard = createPhaseCard('final', classification, (matches) => {
+                if(!teamA || !teamB) return null;
+                return matches.find(m => (getSel(m.local)==teamA && getSel(m.visit)==teamB) || (getSel(m.local)==teamB && getSel(m.visit)==teamA));
+            }, {
+                explicitA: teamA || "Gan. Semi 1",
+                explicitB: teamB || "Gan. Semi 2",
+                label: "Gran Final"
+            });
+            placeInGrid(grid, fCard, 5, 1, 8);
+        }
+
+        function placeInGrid(container, el, col, row, span) {
+            if(!el) return;
+            el.style.gridColumn = col; el.style.gridRow = `${row} / span ${span}`;
+            if(col < 5) el.classList.add('connector-right');
+            container.appendChild(el);
+        }
+
+        function createPhaseCard(phaseKey, classification, finderFn, proj) {
+            const cfg = PHASE_CFG[phaseKey];
+            const allM = MATCH_RESULTS.filter(m => cfg.jornadas.includes(m.jornada));
+            
+            let real = null;
+            if(allM.length > 0) {
+                const found = finderFn(allM);
+                if(found) {
+                    const s1 = getSel(found.local); const s2 = getSel(found.visit);
+                    const series = allM.filter(m => (getSel(m.local)==s1 && getSel(m.visit)==s2) || (getSel(m.local)==s2 && getSel(m.visit)==s1));
+                    real = calculateSeriesStats(series, s1, s2, cfg.type);
+                }
+            }
+
+            const div = document.createElement('div'); div.className = 'bracket-cell';
+            
+            if(real) {
+                // --- MODO REAL (Datos del Excel) ---
+                const {wA, wB, gA, gB, tA, tB, d} = real;
+                const winnerName = wA > wB ? tA : (wB > wA ? tB : null);
+                if (winnerName) div.dataset.winner = winnerName;
+
+                div.innerHTML = `
+                    <div class="bracket-card">
+                        <div class="team-row"><span class="team-name ${wA>wB?'font-winner':''}">${tA}</span><span class="team-score">${wA}</span></div>
+                        <div class="team-row"><span class="team-name ${wB>wA?'font-winner':''}">${tB}</span><span class="team-score">${wB}</span></div>
+                        <div class="meta-info">${cfg.type=='aggregate' ? `Ida: ${d[0]||'-'} | Vta: ${d[1]||'-'}` : `Goles: ${gA}-${gB}`}</div>
+                    </div>`;
+            } else {
+                // --- MODO PROYECCIÓN (Sin datos en Excel aún) ---
+                
+                // Caso 1: Proyección avanzada (Cuartos, Semis, Final) con nombres explícitos
+                if (proj.explicitA || proj.explicitB) {
+                     const nameA = proj.explicitA || "TBD";
+                     const nameB = proj.explicitB || "TBD";
+                     // Estilo: Si es un nombre real (no contiene "Gan."), ponerlo oscuro. Si es placeholder, gris.
+                     const classA = nameA.includes("Gan.") ? "text-gray-400 italic" : "text-gray-600 font-semibold";
+                     const classB = nameB.includes("Gan.") ? "text-gray-400 italic" : "text-gray-600 font-semibold";
+
+                     div.innerHTML = `
+                        <div class="bracket-card tentative">
+                            <div class="team-row"><span class="team-name ${classA}">${nameA}</span></div>
+                            <div class="team-row"><span class="team-name ${classB}">${nameB}</span></div>
+                            <div class="meta-info">${proj.label}</div>
+                        </div>`;
+
+                // Caso 2: Repesca (Basada en Ranking)
+                } else if(phaseKey=='repesca' && classification.length>=24) {
+                    div.innerHTML = `<div class="bracket-card tentative"><div class="team-row"><span class="team-name text-gray-500">${classification[proj.h-1].name}</span></div><div class="team-row"><span class="team-name text-gray-500">${classification[proj.l-1].name}</span></div><div class="meta-info">${proj.label}</div></div>`;
+                
+                // Caso 3: Octavos (Cabeza de serie vs Ganador Repesca)
+                } else if(phaseKey=='octavos' && classification.length>=8) {
+                    const rivalHtml = proj.rivalName 
+                        ? `<span class="team-name text-blue-600 font-semibold">${proj.rivalName}</span>` 
+                        : `<span class="team-name text-gray-400 italic">Ganador Repesca</span>`;
+                     div.innerHTML = `<div class="bracket-card tentative"><div class="team-row"><span class="team-name text-gray-500">${classification[proj.h-1].name}</span></div><div class="team-row">${rivalHtml}</div><div class="meta-info">${proj.label}</div></div>`;
+                
+                // Caso 4: Datos insuficientes
+                } else {
+                    div.innerHTML = `<div class="bracket-card tentative flex items-center justify-center h-16 text-xs text-gray-300">A definir</div>`;
+                }
+            }
+            return div;
+        }
+
+        function createGenericPhaseCard(phaseKey, index) {
+            const cfg = PHASE_CFG[phaseKey];
+            const allM = MATCH_RESULTS.filter(m => cfg.jornadas.includes(m.jornada));
+            const duels = []; const seen = new Set();
+            allM.forEach(m => {
+                const s1=getSel(m.local); const s2=getSel(m.visit); if(s1=='Desconocido') return;
+                const k=[s1,s2].sort().join('-');
+                if(!seen.has(k)) { seen.add(k); duels.push({s1,s2,series:allM.filter(x=>[getSel(x.local),getSel(x.visit)].sort().join('-')==k)}); }
+            });
+            const d = duels[index];
+            const div = document.createElement('div'); div.className = 'bracket-cell';
+            if(d) {
+                const r = calculateSeriesStats(d.series, d.s1, d.s2, cfg.type);
+                div.innerHTML = `
+                    <div class="bracket-card">
+                        <div class="team-row"><span class="team-name ${r.wA>r.wB?'font-winner':''}">${r.tA}</span><span class="team-score">${r.wA}</span></div>
+                        <div class="team-row"><span class="team-name ${r.wB>r.wA?'font-winner':''}">${r.tB}</span><span class="team-score">${r.wB}</span></div>
+                        <div class="meta-info">${cfg.type=='aggregate' ? `Ida: ${r.d[0]||'-'} | Vta: ${r.d[1]||'-'}` : `Goles: ${r.gA}-${r.gB}`}</div>
+                    </div>`;
+            } else {
+                div.innerHTML = `<div class="bracket-card tentative flex items-center justify-center h-16 text-xs text-gray-300">A definir</div>`;
+            }
+            return div;
+        }
+
+        function calculateSeriesStats(matches, tA, tB, type) {
+            let wA = 0, wB = 0, gA = 0, gB = 0;
+            
+            // Objeto para agrupar las victorias por Jornada (ej: Jornada 8 = Ida, Jornada 9 = Vuelta)
+            const statsByJornada = {}; 
+
+            matches.forEach(m => {
+                // Si el partido no se ha jugado, lo ignoramos para no sumar ceros
+                if (m.is_scheduled) return; 
+
+                const isHome = getSel(m.local) === tA;
+                const GA = isHome ? m.gl : m.gv;
+                const GB = isHome ? m.gv : m.gl;
+
+                // 1. Acumulado Global (Suma total de goles y victorias de toda la serie)
+                gA += GA;
+                gB += GB;
+                
+                // Determinamos quién ganó este partido de club para el Global
+                let winA_local = 0;
+                let winB_local = 0;
+                if (GA > GB) { wA++; winA_local = 1; }
+                else if (GB > GA) { wB++; winB_local = 1; }
+
+                // 2. Acumulado por Jornada (Para el texto "Ida: 3-2")
+                if (!statsByJornada[m.jornada]) {
+                    statsByJornada[m.jornada] = { wA: 0, wB: 0 };
+                }
+                statsByJornada[m.jornada].wA += winA_local;
+                statsByJornada[m.jornada].wB += winB_local;
+            });
+
+            // Generamos el texto de detalle ordenando las jornadas (menor a mayor)
+            // Esto asegura que J8 sea Ida y J9 sea Vuelta, sumando todos los partidos de club de cada una.
+            const d = Object.keys(statsByJornada).sort((a, b) => a - b).map(k => {
+                const s = statsByJornada[k];
+                return `${s.wA}-${s.wB}`;
+            });
+
+            return { tA, tB, wA, wB, gA, gB, d };
+        }
+
+        // --- RENDERIZADO TABLAS Y LISTAS ---
+        function renderClassification(classification) {
+            const tableBody = document.getElementById('classification-table-body');
+            tableBody.innerHTML = '';
+            if (classification.length === 0) {
+                 tableBody.innerHTML = '<tr><td colspan="13" class="py-4 text-center text-gray-500">Sin datos.</td></tr>';
+                 return;
+            }
             classification.forEach((team, index) => {
                 const rank = index + 1;
-                let rankClass = '';
-                let rankTextColor = ''; 
-
-                if (rank >= 1 && rank <= 8) {
-                    rankClass = 'rank-1-8'; rankTextColor = 'text-teal-800';
-                } else if (rank >= 9 && rank <= 24) {
-                    rankClass = 'rank-9-24'; rankTextColor = 'text-amber-800';
-                } else {
-                    rankClass = 'rank-25-plus'; rankTextColor = 'text-red-800';
-                }
-
+                let rankClass = rank <= 8 ? 'rank-1-8' : rank <= 24 ? 'rank-9-24' : 'rank-25-plus';
                 const row = document.createElement('tr');
                 row.className = `rank-status hover:opacity-80 transition-opacity duration-200 ${rankClass}`;
-                
                 row.innerHTML = `
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-extrabold ${rankTextColor}">${rank}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-bold text-gray-700">${rank}</td>
                     <td class="px-6 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">${team.name}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-base font-extrabold text-blue-800">${team.Pts}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-base font-extrabold text-blue-800 bg-blue-50/50">${team.Pts}</td>
                     <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-500 hidden sm:table-cell">${team.PJ}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-green-500 hidden sm:table-cell">${team.G}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-yellow-500 hidden sm:table-cell">${team.E}</td>
-                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-red-700 hidden sm:table-cell">${team.P}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-green-600 hidden sm:table-cell">${team.G}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-yellow-600 hidden sm:table-cell">${team.E}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-red-600 hidden sm:table-cell">${team.P}</td>
                     <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-bold ${team.Sel_DG >= 0 ? 'text-blue-700' : 'text-red-700'}">${team.Sel_DG}</td>
-                    <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-500 font-semibold">${team.Sel_GF}</td>
-                    <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-500 hidden sm:table-cell">${team.Sel_GC}</td>
-                    <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-500">${team.DG}</td>
-                    <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-500">${team.GF}</td>
-                    <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-500 hidden sm:table-cell">${team.GC}</td>
+                    <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-500">${team.Sel_GF}</td>
+                    <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-400 hidden sm:table-cell">${team.Sel_GC}</td>
+                    <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-400">${team.DG}</td>
+                    <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-400">${team.GF}</td>
+                    <td class="px-2 py-3 whitespace-nowrap text-center text-xs text-gray-400 hidden sm:table-cell">${team.GC}</td>
                 `;
                 tableBody.appendChild(row);
             });
         }
-        
-        function getAggregateScore(vueltaMatch) {
-            if (vueltaMatch.match_type !== 'VUELTA') return null;
 
-            const prevJornada = vueltaMatch.jornada - 1;
-            const idaMatch = MATCH_RESULTS.find(m => 
-                m.jornada === prevJornada &&
-                m.local === vueltaMatch.visit && 
-                m.visit === vueltaMatch.local
-            );
+        function renderResults(clubJ) {
+            const list = document.getElementById('match-results-list');
+            if (!list) return;
 
-            if (!idaMatch || idaMatch.is_scheduled) return null; 
-
-            const gL_Vuelta = vueltaMatch.gl || 0;
-            const gV_Vuelta = vueltaMatch.gv || 0;
-            const globalLocal = gL_Vuelta + idaMatch.gv;
-            const globalVisit = gV_Vuelta + idaMatch.gl;
-
-            return { globalLocal, globalVisit };
-        }
-
-        /**
-         * Renderiza los resultados agregados. (VERSIÓN CORREGIDA)
-         */
-        function renderResults(clubResultsByJornada, selectionMatchGoals) {
-            const resultsList = document.getElementById('match-results-list');
-            const jornadaTitle = document.getElementById('current-jornada-title'); // Recuperamos la referencia al título
-            const prevBtn = document.getElementById('prev-btn');
-            const nextBtn = document.getElementById('next-btn');
-
-            resultsList.innerHTML = ''; 
-
-            if (sortedJornadas.length === 0) {
-                jornadaTitle.textContent = 'Sin Jornadas';
-                prevBtn.disabled = true;
-                nextBtn.disabled = true;
-                resultsList.innerHTML = '<p class="text-center text-gray-500 md:col-span-2">No se encontraron resultados de partidos.</p>'; 
-                return;
+            const jNum = sortedJornadas[currentJornadaIndex];
+            if(!jNum) { 
+                list.innerHTML = '<p class="text-center text-gray-400">Sin datos</p>'; 
+                return; 
             }
-
-            // --- 1. PRIMERO OBTENEMOS LOS DATOS ---
-            const jornadaNum = sortedJornadas[currentJornadaIndex];
-            const relativePosition = sortedJornadas.length - currentJornadaIndex;
-            const clubMatches = clubResultsByJornada[jornadaNum] || [];
             
-            // --- 2. CALCULAMOS ESTADO DE LA JORNADA ---
-            const esProximaJornada = clubMatches.length > 0 && clubMatches.every(m => m.is_scheduled);
-            const phaseName = clubMatches[0]?.phase_name || `Jornada ${jornadaNum}`;
+            const title = STAGE_NAMES[jNum] || `Jornada ${jNum}`;
+            const matches = clubJ[jNum] || [];
+            const isNext = matches.length > 0 && matches.every(m => m.is_scheduled);
+            
+            const titleEl = document.getElementById('current-jornada-title');
+            if(titleEl) titleEl.textContent = isNext ? `${title} (Próximo)` : title;
 
-            // --- 3. ACTUALIZAMOS EL TÍTULO ---
-            if (esProximaJornada) {
-                jornadaTitle.textContent = `${phaseName} (Próximo)`;
-            } else {
-                jornadaTitle.textContent = `${phaseName}`;
-            }
-
-            // Habilitar/Deshabilitar botones
-            prevBtn.disabled = currentJornadaIndex === sortedJornadas.length - 1;
-            nextBtn.disabled = currentJornadaIndex === 0;
-
-
-            // --- 4. RENDERIZADO DE PARTIDOS ---
-            const selectionMatchInJornada = {}; 
-            clubMatches.forEach(match => {
-                const key = `${match.homeSel} vs ${match.awaySel}`;
-                selectionMatchInJornada[key] = selectionMatchInJornada[key] || {
-                    selA: match.homeSel, selB: match.awaySel, clubMatches: []
-                };
-                selectionMatchInJornada[key].clubMatches.push(match);
+            // Agrupar
+            const groups = {};
+            matches.forEach(m => {
+                const k = `${m.homeSel}-${m.awaySel}`;
+                groups[k] = groups[k] || {h:m.homeSel, v:m.awaySel, ms:[]};
+                groups[k].ms.push(m);
             });
 
-            let jornadaHtml = '';
-            
-            Object.values(selectionMatchInJornada).forEach((selectionMatch) => {
-                const sel1 = selectionMatch.selA;
-                const sel2 = selectionMatch.selB;
-                const storedData = selectionMatchGoals[sel1]?.[sel2] || { Wins_S: 0, Wins_C: 0, Total_GF: 0, Total_GC: 0 };
-                const allScheduled = selectionMatch.clubMatches.every(cm => cm.is_scheduled === true);
+            list.innerHTML = Object.values(groups).map(g => {
+                let wH=0, wA=0, gH=0, gA=0, sched=false;
                 
-                let headerScoreHtml = '';
-                let subHeaderScoreHtml = '';
-                let resultClass = 'font-bold text-gray-800'; 
+                g.ms.forEach(m => {
+                    if(m.is_scheduled) sched=true;
+                    else { 
+                        gH+=m.gl; gA+=m.gv; 
+                        if(m.gl>m.gv) wH++; else if(m.gv>m.gl) wA++; 
+                    }
+                });
 
-                if (allScheduled) {
-                    headerScoreHtml = `vs`;
-                    subHeaderScoreHtml = `Próximo Partido`;
-                    resultClass = 'font-bold text-blue-700'; 
-                } else {
-                    const primaryScoreSel1 = storedData.Wins_S; 
-                    const primaryScoreSel2 = storedData.Wins_C;
-                    const totalGoalsSel1 = storedData.Total_GF;
-                    const totalGoalsSel2 = storedData.Total_GC;
+                const head = sched ? 'vs' : `${wH} - ${wA}`;
+                const sub = sched ? 'Próximo Partido' : `Goles: ${gH}-${gA}`; // Ajusté el texto para que coincida más con tu foto si es pendiente
+                const color = sched ? 'text-blue-600' : (wH>wA?'text-green-700':(wA>wH?'text-red-700':'text-gray-800'));
 
-                    headerScoreHtml = `${primaryScoreSel1} - ${primaryScoreSel2}`;
-                    subHeaderScoreHtml = `Goles R: ${totalGoalsSel1} - ${totalGoalsSel2}`;
-
-                    if (primaryScoreSel1 > primaryScoreSel2) { resultClass = 'font-bold text-green-700'; }
-                    else if (primaryScoreSel1 < primaryScoreSel2) { resultClass = 'font-bold text-red-700'; } 
-                }
-
-                jornadaHtml += `
-                    <div class="border border-gray-200 rounded-lg overflow-hidden shadow-md"> 
-                        <div class="selection-match p-3 cursor-pointer hover:bg-blue-50 transition-colors" 
-                                    onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.rotated-arrow').classList.toggle('rotate-180');">
-                            <div class="grid grid-cols-5 gap-1 items-center">
-                                <div class="col-span-2 flex items-center">
-                                    <span class="text-sm font-medium text-gray-700 text-left pr-1">${sel1}</span>
-                                </div>
-                                <div class="col-span-1 flex flex-col items-center justify-center">
-                                    <span class="text-xl ${resultClass} whitespace-nowrap">${headerScoreHtml}</span>
-                                    <span class="text-xs text-gray-500 whitespace-nowrap">${subHeaderScoreHtml}</span>
-                                </div>
-                                <div class="col-span-2 flex items-center justify-end">
-                                    <span class="text-sm font-medium text-gray-700 text-right pl-1">${sel2}</span>
-                                    <svg class="w-4 h-4 text-gray-500 rotated-arrow ml-2 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
-                            </div>
+                return `
+                <div class="break-inside-avoid mb-4 border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white">
+                    <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.arrow').classList.toggle('rotate-180')">
+                        
+                        <div class="flex-1 text-left text-base font-semibold text-gray-800 truncate">
+                            ${g.h}
                         </div>
-                        <div class="club-details hidden bg-gray-50 p-2 border-t border-gray-100 text-xs space-y-1">
-                            ${selectionMatch.clubMatches.map(clubMatch => {
-                                let scoreHtml = '';
-                                let extraInfoHtml = ''; 
-                                let clubResultClass = 'text-gray-600'; 
+                        
+                        <div class="w-28 shrink-0 text-center flex flex-col justify-center px-2">
+                            <div class="text-xl font-extrabold uppercase ${color}">${head}</div>
+                            <div class="text-[10px] text-gray-400 leading-tight mt-1">${sub}</div>
+                        </div>
+                        
+                        <div class="flex-1 text-right text-base font-semibold text-gray-800 truncate">
+                            ${g.v}
+                        </div>
 
-                                if (clubMatch.is_scheduled === true) {
-                                    scoreHtml = 'vs';
-                                    clubResultClass = 'text-blue-600 font-bold';
-                                } else {
-                                    scoreHtml = `${clubMatch.gl} - ${clubMatch.gv}`;
-                                    clubResultClass = clubMatch.gl > clubMatch.gv ? 'text-green-600' : clubMatch.gl < clubMatch.gv ? 'text-red-600' : 'text-gray-600';
-                                    
-                                    if (clubMatch.match_type === 'VUELTA') {
-                                        const agg = getAggregateScore(clubMatch);
-                                        if (agg) {
-                                            const winnerClassL = agg.globalLocal > agg.globalVisit ? 'font-bold text-black' : 'text-gray-500';
-                                            const winnerClassV = agg.globalVisit > agg.globalLocal ? 'font-bold text-black' : 'text-gray-500';
-                                            extraInfoHtml = `
-                                                <div class="col-span-5 text-center text-[10px] text-gray-500 -mt-1 mb-1">
-                                                    Global: <span class="${winnerClassL}">${agg.globalLocal}</span> - <span class="${winnerClassV}">${agg.globalVisit}</span>
-                                                </div>
-                                            `;
-                                        }
-                                    }
-                                }
-                                return `
-                                    <div class="grid grid-cols-5 items-center px-2 py-1 bg-white rounded-md shadow-sm border border-dashed border-gray-200 relative">
-                                        <span class="col-span-2 text-gray-600 text-left">${clubMatch.local}</span>
-                                        <span class="col-span-1 font-mono text-xs font-semibold text-center ${clubResultClass} whitespace-nowrap">${scoreHtml}</span>
-                                        <span class="col-span-2 text-gray-600 text-right">${clubMatch.visit}</span>
-                                        ${extraInfoHtml}
-                                    </div>
-                                `;
-                            }).join('')}
+                        <div class="ml-3 shrink-0">
+                             <svg class="w-5 h-5 text-gray-400 arrow transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </div>
                     </div>
-                `;
-            });
-            
-            resultsList.innerHTML = jornadaHtml;
+
+                    <div class="hidden bg-gray-50 border-t border-gray-100 p-2 space-y-2">
+                        ${g.ms.map(m => `
+                            <div class="flex items-center justify-between text-xs text-gray-600 bg-white border border-gray-100 rounded px-3 py-2 shadow-sm">
+                                <span class="flex-1 text-left truncate">${m.local}</span>
+                                
+                                <span class="w-16 text-center font-mono font-bold shrink-0 ${m.is_scheduled?'text-blue-500':(m.gl>m.gv?'text-green-600':(m.gv>m.gl?'text-red-600':'text-gray-500'))}">
+                                    ${m.is_scheduled?'vs':m.gl+'-'+m.gv}
+                                </span>
+                                
+                                <span class="flex-1 text-right truncate">${m.visit}</span>
+                            </div>`).join('')}
+                    </div>
+                </div>`;
+            }).join('');
         }
-
-        function changeJornada(direction) {
-            const newIndex = currentJornadaIndex + direction;
-            if (newIndex >= 0 && newIndex < sortedJornadas.length) {
-                currentJornadaIndex = newIndex;
-                renderResults(clubResultsByJornadaCache, selectionMatchGoalsCache);
-            }
+        function changeJornada(d) {
+            const n = currentJornadaIndex + d;
+            if(n>=0 && n<sortedJornadas.length) { currentJornadaIndex=n; renderResults(clubResultsByJornadaCache); }
         }
-        
-        window.changeJornada = changeJornada; 
-
-        function initializeApp() {
-            if (TEAMS_CONFIG.length === 0 || MATCH_RESULTS.length === 0) {
-                console.warn("Datos de entrada faltantes.");
-                document.getElementById('classification-table-body').innerHTML = '<tr><td colspan="13" class="py-4 text-center text-red-500">ERROR: No se inyectaron los datos.</td></tr>';
-                document.getElementById('match-results-list').innerHTML = '<p class="text-center text-red-500">Faltan datos de resultados.</p>';
-                return;
-            }
-            
-            setupData();
-            const { finalClassification, clubResultsByJornada, selectionMatchGoals } = calculateStats();
-
-            sortedJornadas = Object.keys(clubResultsByJornada).map(Number).sort((a, b) => b - a); 
-            currentJornadaIndex = 0; 
-
-            renderClassification(finalClassification);
-            renderResults(clubResultsByJornada, selectionMatchGoals);
-        }
-
-        document.addEventListener('DOMContentLoaded', initializeApp);
-
     </script>
 </body>
 </html>
