@@ -103,7 +103,6 @@
             background-color: #f1f5f9;
         }
 
-
         .team-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
         .team-name { font-weight: 600; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
         .team-score { font-family: monospace; font-weight: bold; color: #1e293b; }
@@ -112,14 +111,43 @@
     
     /* --- LEYENDA Y TIPOS DE PARTIDO --- */
         .bracket-legend {
-            background: #fff; border: 1px solid #cbd5e0; border-radius: 8px;
-            padding: 10px 15px; margin-bottom: 20px; font-size: 0.85rem;
-            display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;
+            background: #fff; 
+            border: 1px solid #cbd5e0; 
+            border-radius: 8px;
+            padding: 12px 15px; 
+            margin-bottom: 20px; 
+            font-size: 0.85rem;
+            
+            display: flex; 
+            gap: 20px; 
+            flex-wrap: wrap; 
+            justify-content: flex-start; /* Alineación horizontal a la izquierda */
             color: #475569;
         }
-        .legend-item { display: flex; align-items: center; }
-        .legend-indicator { width: 12px; height: 12px; border-radius: 2px; margin-right: 6px; }
-        
+
+        .legend-item { 
+            display: flex; 
+            align-items: flex-start; /* CRÍTICO: Alinea icono y texto ARRIBA, no al centro */
+        }
+
+        .legend-indicator { 
+            width: 12px; 
+            height: 12px; 
+            border-radius: 2px; 
+            margin-right: 8px; 
+            
+            /* CRÍTICO: Evita que el cuadrado se haga pequeño cuando hay mucho texto */
+            flex-shrink: 0; 
+            
+            /* Ajuste óptico: Baja el cuadrado unos pixeles para alinearlo con la primera línea de texto */
+            margin-top: 5px; 
+        }
+
+        .legend-item strong {
+            white-space: nowrap; 
+            margin-right: 4px;
+            color: #1e293b; /* Un poco más oscuro para resaltar */
+        }
         /* Diferenciación visual de tarjetas */
         .card-single { border-left: 4px solid #3b82f6; } /* Azul para partido único */
         .card-double { border-left: 4px solid #f97316; } /* Naranja para doble partido */
@@ -152,7 +180,7 @@
                 </div>
                 <div class="legend-item">
                     <span class="legend-indicator bg-orange-500"></span>
-                    <strong>Ida y Vuelta:</strong>&nbsp;El peor clasificado reta primero (Aparece ARRIBA). Desempate: Selección con mas goles de clubes en la llave.
+                    <strong>Ida y Vuelta:</strong>&nbsp;El peor clasificado reta primero (Aparece ARRIBA). Desempate: Selección con mas goles de clubes en la llave. Si persiste, partido desempate el lunes, donde contará prorroga y penaltis.
                 </div>
             </div>
             <div class="bracket-wrapper">
