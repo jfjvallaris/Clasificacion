@@ -60,17 +60,75 @@
             width: 30px; height: 1px; background: #cbd5e0; z-index: 0;
         }
         /* Tarjetas Bracket */
+        /* Tarjeta base */
         .bracket-card {
-            background: white; border: 1px solid #e2e8f0; border-radius: 8px;
-            padding: 8px 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            font-size: 0.8rem; position: relative; z-index: 1;
+            background: white; 
+            border: 1px solid #e2e8f0; /* Borde base gris suave */
+            border-radius: 8px;
+            padding: 8px 12px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            font-size: 0.8rem; 
+            position: relative; 
+            z-index: 1;
         }
-        .bracket-card.tentative { border: 1px dashed #cbd5e0; background-color: #f8fafc; opacity: 0.8; }
+
+        /* Tarjeta Tentativa (No disputada aún) */
+        .bracket-card.tentative { 
+            background-color: #f8fafc; 
+            opacity: 0.9;
+            border: 1px dashed #cbd5e0; 
+            /* Importante: quitamos el borde izquierdo aquí para que no interfiera */
+            border-left: 0; 
+        }
+
+        /* TIPOS DE PARTIDO (Colores) */
+        /* Importante: border-left-style solid fuerza que la barra de color sea sólida aunque la tarjeta sea dashed */
+        .card-single { 
+            border-left: 5px solid #3b82f6 !important; /* Azul Sólido Siempre */
+        } 
+        .card-double { 
+            border-left: 5px solid #f97316 !important; /* Naranja Sólido Siempre */
+        }
+        
+        /* Estilo 3er puesto */
+        .bracket-card.third-place { 
+            border: 1px dotted #94a3b8; 
+            background-color: #f1f5f9;
+        }
+        
+        /* Estilo específico para 3er puesto */
+        .bracket-card.third-place { 
+            border-style: dotted; 
+            border-color: #94a3b8; 
+            background-color: #f1f5f9;
+        }
+
+
         .team-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
         .team-name { font-weight: 600; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
         .team-score { font-family: monospace; font-weight: bold; color: #1e293b; }
         .font-winner { color: #000; font-weight: 800; }
         .meta-info { border-top: 1px solid #f1f5f9; margin-top: 4px; padding-top: 2px; font-size: 0.7rem; text-align: center; color: #64748b; }
+    
+    /* --- LEYENDA Y TIPOS DE PARTIDO --- */
+        .bracket-legend {
+            background: #fff; border: 1px solid #cbd5e0; border-radius: 8px;
+            padding: 10px 15px; margin-bottom: 20px; font-size: 0.85rem;
+            display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;
+            color: #475569;
+        }
+        .legend-item { display: flex; align-items: center; }
+        .legend-indicator { width: 12px; height: 12px; border-radius: 2px; margin-right: 6px; }
+        
+        /* Diferenciación visual de tarjetas */
+        .card-single { border-left: 4px solid #3b82f6; } /* Azul para partido único */
+        .card-double { border-left: 4px solid #f97316; } /* Naranja para doble partido */
+        
+        /* Ajuste para 3er puesto */
+        .bracket-card.third-place { border-style: dashed; border-color: #94a3b8; }
+        
+        /* Estilo del Ranking */
+        .team-rank { font-size: 0.7em; color: #64748b; margin-left: 4px; font-weight: normal; }
     </style>
 </head>
 <body class="p-4 sm:p-8">
@@ -87,6 +145,16 @@
             <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b pb-2 flex items-center">
                 <span class="mr-2">🏆</span> Fase Final
             </h2>
+            <div class="bracket-legend">
+                <div class="legend-item">
+                    <span class="legend-indicator bg-blue-500"></span>
+                    <strong>Partido Único:</strong>&nbsp;Definición directa (Repesca, Final, 3er Puesto). Mejor ranking aparece ARRIBA.
+                </div>
+                <div class="legend-item">
+                    <span class="legend-indicator bg-orange-500"></span>
+                    <strong>Ida y Vuelta:</strong>&nbsp;El peor clasificado reta primero (Aparece ARRIBA). Desempate: Selección con mas goles de clubes en la llave.
+                </div>
+            </div>
             <div class="bracket-wrapper">
                 <div class="grid-layout bracket-header">
                     <div class="header-item">REPESCA</div>
@@ -4715,99 +4783,105 @@
         }
 
         // --- RENDERIZADO BRACKET GRID ---
+        // --- HELPER PARA OBTENER RANKING ---
+        function getTeamRank(teamName, classification) {
+            if (!teamName) return 999;
+            const idx = classification.findIndex(t => t.name === teamName);
+            return idx === -1 ? 999 : (idx + 1);
+        }
+
+        // --- RENDERIZADO BRACKET GRID (Con lógica 3er Puesto y paso de Rankings) ---
         function renderBracketGrid(classification) {
             const grid = document.getElementById('bracket-grid');
             grid.innerHTML = '';
             
-            // Arrays para guardar los ganadores y pasarlos a la siguiente ronda
             const repescaWinners = {};
-            const octavosWinners = []; // Guardará 8 ganadores (indices 0-7)
-            const cuartosWinners = []; // Guardará 4 ganadores
-            const semisWinners = [];   // Guardará 2 ganadores
+            const octavosWinners = []; 
+            const cuartosWinners = []; 
+            const semisWinners = [];   
+            const semisLosers = []; 
 
-            // --- 1. REPESCA Y OCTAVOS (Llenado inicial) ---
+            // --- 1. REPESCA ---
             BRACKET_LAYOUT.forEach((slot, index) => {
                 const rowIndex = index + 1;
-                
-                // A) REPESCA
                 const repKey = slot.rep;
                 const repCfg = REPESCA_PAIRS[repKey];
+                
                 const repCard = createPhaseCard('repesca', classification, (matches) => {
                     if(classification.length < 24) return null;
                     const h = classification[repCfg.h-1].name; const l = classification[repCfg.l-1].name;
                     return matches.find(m => (getSel(m.local)==h && getSel(m.visit)==l) || (getSel(m.local)==l && getSel(m.visit)==h));
-                }, {h: repCfg.h, l: repCfg.l, label: `Llave ${repKey}`});
+                }, { explicitA: classification[repCfg.h-1]?.name, explicitB: classification[repCfg.l-1]?.name, label: `Llave ${repKey}` });
                 
                 if (repCard.dataset.winner) repescaWinners[repKey] = repCard.dataset.winner;
                 placeInGrid(grid, repCard, 1, rowIndex, 1);
 
-                // B) OCTAVOS
+                // --- 2. OCTAVOS ---
+                const seedName = classification[slot.oct-1]?.name;
                 const octCard = createPhaseCard('octavos', classification, (matches) => {
-                    if(classification.length < 8) return null;
-                    const s = classification[slot.oct-1].name;
-                    return matches.find(m => getSel(m.local)==s || getSel(m.visit)==s);
-                }, {
-                    h: slot.oct, 
-                    rivalName: repescaWinners[repKey] || null, 
-                    label: `vs Gan. ${repKey}`
-                });
+                    if(!seedName) return null;
+                    return matches.find(m => getSel(m.local)==seedName || getSel(m.visit)==seedName);
+                }, { explicitA: seedName, explicitB: repescaWinners[repKey] || null, label: `vs Gan. ${repKey}` });
                 
-                // Guardamos el ganador de este cruce de octavos (por índice del layout)
                 if (octCard.dataset.winner) octavosWinners[index] = octCard.dataset.winner;
                 placeInGrid(grid, octCard, 2, rowIndex, 1);
             });
 
-            // --- 2. CUARTOS (Usando ganadores de Octavos) ---
+            // --- 3. CUARTOS ---
             for(let i=0; i<4; i++) {
-                // Cuartos 1 sale de Octavos 0 y 1. Cuartos 2 de Octavos 2 y 3, etc.
                 const teamA = octavosWinners[i*2];
                 const teamB = octavosWinners[i*2+1];
-
                 const qCard = createPhaseCard('cuartos', classification, (matches) => {
-                    // Solo buscamos partido real si tenemos LOS DOS equipos definidos
                     if(!teamA || !teamB) return null;
                     return matches.find(m => (getSel(m.local)==teamA && getSel(m.visit)==teamB) || (getSel(m.local)==teamB && getSel(m.visit)==teamA));
-                }, {
-                    // Datos para proyección si no hay partido real
-                    explicitA: teamA || "Gan. Octavos",
-                    explicitB: teamB || "Gan. Octavos",
-                    label: "Cuartos de Final"
-                });
+                }, { explicitA: teamA || "Gan. Octavos", explicitB: teamB || "Gan. Octavos", label: "Cuartos" });
 
                 if (qCard.dataset.winner) cuartosWinners[i] = qCard.dataset.winner;
                 placeInGrid(grid, qCard, 3, (i*2)+1, 2);
             }
 
-            // --- 3. SEMIS (Usando ganadores de Cuartos) ---
+            // --- 4. SEMIS ---
             for(let i=0; i<2; i++) {
                 const teamA = cuartosWinners[i*2];
                 const teamB = cuartosWinners[i*2+1];
-
                 const sCard = createPhaseCard('semis', classification, (matches) => {
                     if(!teamA || !teamB) return null;
                     return matches.find(m => (getSel(m.local)==teamA && getSel(m.visit)==teamB) || (getSel(m.local)==teamB && getSel(m.visit)==teamA));
-                }, {
-                    explicitA: teamA || "Gan. Cuartos",
-                    explicitB: teamB || "Gan. Cuartos",
-                    label: "Semifinal"
-                });
+                }, { explicitA: teamA || "Gan. Cuartos", explicitB: teamB || "Gan. Cuartos", label: "Semifinal" });
 
                 if (sCard.dataset.winner) semisWinners[i] = sCard.dataset.winner;
+                if (sCard.dataset.loser) semisLosers.push(sCard.dataset.loser);
+                
                 placeInGrid(grid, sCard, 4, (i*4)+1, 4);
             }
 
-            // --- 4. FINAL (Usando ganadores de Semis) ---
-            const teamA = semisWinners[0];
-            const teamB = semisWinners[1];
+            // --- 5. FINAL (Posición: Fila 2, span 3) ---
+            const finalA = semisWinners[0];
+            const finalB = semisWinners[1];
             const fCard = createPhaseCard('final', classification, (matches) => {
-                if(!teamA || !teamB) return null;
-                return matches.find(m => (getSel(m.local)==teamA && getSel(m.visit)==teamB) || (getSel(m.local)==teamB && getSel(m.visit)==teamA));
-            }, {
-                explicitA: teamA || "Gan. Semi 1",
-                explicitB: teamB || "Gan. Semi 2",
-                label: "Gran Final"
-            });
-            placeInGrid(grid, fCard, 5, 1, 8);
+                if(!finalA || !finalB) return null;
+                return matches.find(m => (getSel(m.local)==finalA && getSel(m.visit)==finalB) || (getSel(m.local)==finalB && getSel(m.visit)==finalA));
+            }, { explicitA: finalA || "Finalista 1", explicitB: finalB || "Finalista 2", label: "Gran Final" });
+            
+            fCard.style.gridColumn = 5; 
+            fCard.style.gridRow = "2 / span 3"; 
+            grid.appendChild(fCard);
+
+            // --- 6. TERCER PUESTO (Posición: Fila 5) ---
+            const thirdA = semisLosers[0];
+            const thirdB = semisLosers[1];
+            const tCard = createPhaseCard('final', classification, (matches) => { 
+                if(!thirdA || !thirdB) return null;
+                return matches.find(m => (getSel(m.local)==thirdA && getSel(m.visit)==thirdB) || (getSel(m.local)==thirdB && getSel(m.visit)==thirdA));
+            }, { explicitA: thirdA || "Perd. Semi 1", explicitB: thirdB || "Perd. Semi 2", label: "3er Puesto" });
+            
+            tCard.querySelector('.bracket-card').classList.add('third-place');
+            tCard.querySelector('.bracket-card').classList.add('card-single'); 
+            
+            // Fila 5: Justo debajo de la final
+            tCard.style.gridColumn = 5; 
+            tCard.style.gridRow = "5 / span 1"; 
+            grid.appendChild(tCard);
         }
 
         function placeInGrid(container, el, col, row, span) {
@@ -4817,97 +4891,214 @@
             container.appendChild(el);
         }
 
+        // --- CREACIÓN DE TARJETA INTELIGENTE (Ordenamiento + Desempate) ---
         function createPhaseCard(phaseKey, classification, finderFn, proj) {
             const cfg = PHASE_CFG[phaseKey];
-            const allM = MATCH_RESULTS.filter(m => cfg.jornadas.includes(m.jornada));
+            const isSingleMatch = cfg.type === 'single';
             
+            // 1. Determinar Nombres (Proyección o Reales pasados en proj)
+            let teamNameA = proj.explicitA || "TBD";
+            let teamNameB = proj.explicitB || "TBD";
+
+            // 2. ORDENAMIENTO (Requirement 1)
+            // Calculamos rankings para ordenar visualmente
+            const rankA = getTeamRank(teamNameA, classification);
+            const rankB = getTeamRank(teamNameB, classification);
+            
+            let topTeam = teamNameA;
+            let botTeam = teamNameB;
+            let topRank = rankA;
+            let botRank = rankB;
+            let swapped = false;
+
+            if (teamNameA !== "TBD" && teamNameB !== "TBD") {
+                if (isSingleMatch) {
+                    // Partido Único: Mejor ranking (menor número) ARRIBA
+                    if (rankB < rankA) { topTeam = teamNameB; botTeam = teamNameA; topRank = rankB; botRank = rankA; swapped = true; }
+                } else {
+                    // Partido Doble: Mejor ranking ABAJO (Peor clasificado reta arriba)
+                    if (rankB > rankA) { topTeam = teamNameB; botTeam = teamNameA; topRank = rankB; botRank = rankA; swapped = true; }
+                }
+            }
+
+            // 3. Buscar Datos Reales
+            const allM = MATCH_RESULTS.filter(m => cfg.jornadas.includes(m.jornada));
             let real = null;
-            if(allM.length > 0) {
+            if(allM.length > 0 && topTeam !== "TBD" && botTeam !== "TBD") {
                 const found = finderFn(allM);
                 if(found) {
-                    const s1 = getSel(found.local); const s2 = getSel(found.visit);
-                    // Filtramos la serie completa entre estos dos equipos
-                    const series = allM.filter(m => (getSel(m.local)==s1 && getSel(m.visit)==s2) || (getSel(m.local)==s2 && getSel(m.visit)==s1));
+                    // Nota: finderFn busca partido genérico, aquí filtramos la serie exacta entre Top y Bot
+                    const series = allM.filter(m => (getSel(m.local)==topTeam && getSel(m.visit)==botTeam) || (getSel(m.local)==botTeam && getSel(m.visit)==topTeam));
+                    const hasPlayed = series.some(m => !m.is_scheduled);
                     
-                    // --- CORRECCIÓN AQUÍ ---
-                    // Verificamos si AL MENOS UNO de los partidos NO es pendiente (ya se jugó)
-                    const hasPlayedMatches = series.some(m => !m.is_scheduled);
-                    
-                    // Solo calculamos estadísticas si hay partidos jugados.
-                    // Si todo es calendario (scheduled), 'real' se queda en null y el código dibuja la proyección.
-                    if (hasPlayedMatches) {
-                        real = calculateSeriesStats(series, s1, s2, cfg.type);
+                    if (hasPlayed) {
+                        // Calculamos stats respetando quién pusimos arriba (topTeam) como 'Team A'
+                        real = calculateSeriesStats(series, topTeam, botTeam, cfg.type);
                     }
                 }
             }
 
-            const div = document.createElement('div'); div.className = 'bracket-cell';
+            const div = document.createElement('div'); 
+            div.className = 'bracket-cell';
             
+            // Clase visual para borde (Single vs Double)
+            const borderClass = isSingleMatch ? 'card-single' : 'card-double';
+
             if(real) {
-                // --- MODO REAL (Hay resultados jugados) ---
+                // --- MODO REAL ---
                 const {wA, wB, gA, gB, tA, tB, d} = real;
-                const winnerName = wA > wB ? tA : (wB > wA ? tB : null);
-                if (winnerName) div.dataset.winner = winnerName;
+                
+                // 4. LÓGICA DE GANADOR Y DESEMPATE (Requirement 2)
+                let winnerName = null;
+                let loserName = null;
+
+                if (isSingleMatch) {
+                    // Único: Solo importa goles/victorias directas
+                    if (wA > wB || gA > gB) winnerName = tA; // tA es topTeam
+                    else if (wB > wA || gB > gA) winnerName = tB;
+                } else {
+                    // Doble: 1º Puntos (Wins), 2º Goles Globales
+                    if (wA > wB) winnerName = tA;
+                    else if (wB > wA) winnerName = tB;
+                    else {
+                        // Empate en puntos -> Mirar Goles
+                        if (gA > gB) winnerName = tA;
+                        else if (gB > gA) winnerName = tB;
+                    }
+                }
+                
+                if (winnerName) {
+                    div.dataset.winner = winnerName;
+                    div.dataset.loser = (winnerName === tA) ? tB : tA;
+                }
 
                 div.innerHTML = `
-                    <div class="bracket-card">
-                        <div class="team-row"><span class="team-name ${wA>wB?'font-winner':''}">${tA}</span><span class="team-score">${wA}</span></div>
-                        <div class="team-row"><span class="team-name ${wB>wA?'font-winner':''}">${tB}</span><span class="team-score">${wB}</span></div>
-                        <div class="meta-info">${cfg.type=='aggregate' ? `Ida: ${d[0]||'-'} | Vta: ${d[1]||'-'}` : `Goles: ${gA}-${gB}`}</div>
+                    <div class="bracket-card ${borderClass}">
+                        <div class="team-row">
+                            <span class="team-name ${winnerName===tA?'font-winner':''}">${tA} <span class="team-rank">(${topRank<900?topRank:'-'})</span></span>
+                            <span class="team-score">${isSingleMatch ? gA : wA}</span>
+                        </div>
+                        <div class="team-row">
+                            <span class="team-name ${winnerName===tB?'font-winner':''}">${tB} <span class="team-rank">(${botRank<900?botRank:'-'})</span></span>
+                            <span class="team-score">${isSingleMatch ? gB : wB}</span>
+                        </div>
+                        <div class="meta-info">
+                            ${!isSingleMatch && wA===wB ? `<span class="text-red-500 font-bold text-xs mr-1">Def. Goles</span>` : ''}
+                            ${!isSingleMatch ? `Ida: ${d[0]||'-'} | Vta: ${d[1]||'-'}` : `Final`}
+                            ${!isSingleMatch ? `<span class="text-xs text-gray-400 ml-1">(G: ${gA}-${gB})</span>` : ''}
+                        </div>
                     </div>`;
             } else {
-                // --- MODO PROYECCIÓN (Futuro / Calendario / A definir) ---
+                // --- MODO PROYECCIÓN ---
+                // Estilos para nombres placeholder
+                const classA = topTeam.includes("Gan.") || topTeam.includes("Perd.") || topTeam.includes("Finalista") ? "text-gray-400 italic" : "text-gray-600 font-semibold";
+                const classB = botTeam.includes("Gan.") || botTeam.includes("Perd.") || botTeam.includes("Finalista") ? "text-gray-400 italic" : "text-gray-600 font-semibold";
                 
-                if (proj.explicitA || proj.explicitB) {
-                     const nameA = proj.explicitA || "TBD";
-                     const nameB = proj.explicitB || "TBD";
-                     const classA = nameA.includes("Gan.") ? "text-gray-400 italic" : "text-gray-600 font-semibold";
-                     const classB = nameB.includes("Gan.") ? "text-gray-400 italic" : "text-gray-600 font-semibold";
-
-                     div.innerHTML = `
-                        <div class="bracket-card tentative">
-                            <div class="team-row"><span class="team-name ${classA}">${nameA}</span></div>
-                            <div class="team-row"><span class="team-name ${classB}">${nameB}</span></div>
-                            <div class="meta-info">${proj.label}</div>
-                        </div>`;
-
-                } else if(phaseKey=='repesca' && classification.length>=24) {
-                    div.innerHTML = `<div class="bracket-card tentative"><div class="team-row"><span class="team-name text-gray-500">${classification[proj.h-1].name}</span></div><div class="team-row"><span class="team-name text-gray-500">${classification[proj.l-1].name}</span></div><div class="meta-info">${proj.label}</div></div>`;
-                
-                } else if(phaseKey=='octavos' && classification.length>=8) {
-                    const rivalHtml = proj.rivalName 
-                        ? `<span class="team-name text-blue-600 font-semibold">${proj.rivalName}</span>` 
-                        : `<span class="team-name text-gray-400 italic">Ganador Repesca</span>`;
-                     div.innerHTML = `<div class="bracket-card tentative"><div class="team-row"><span class="team-name text-gray-500">${classification[proj.h-1].name}</span></div><div class="team-row">${rivalHtml}</div><div class="meta-info">${proj.label}</div></div>`;
-                
-                } else {
-                    div.innerHTML = `<div class="bracket-card tentative flex items-center justify-center h-16 text-xs text-gray-300">A definir</div>`;
-                }
+                div.innerHTML = `
+                    <div class="bracket-card tentative ${borderClass}">
+                        <div class="team-row">
+                            <span class="team-name ${classA}">${topTeam} <span class="team-rank">(${topRank<900?topRank:'-'})</span></span>
+                        </div>
+                        <div class="team-row">
+                            <span class="team-name ${classB}">${botTeam} <span class="team-rank">(${botRank<900?botRank:'-'})</span></span>
+                        </div>
+                        <div class="meta-info">${proj.label}</div>
+                    </div>`;
             }
             return div;
         }
 
-        function createGenericPhaseCard(phaseKey, index) {
+        function createPhaseCard(phaseKey, classification, finderFn, proj) {
             const cfg = PHASE_CFG[phaseKey];
+            const isSingleMatch = cfg.type === 'single';
+            
+            let teamNameA = proj.explicitA || "TBD";
+            let teamNameB = proj.explicitB || "TBD";
+
+            // ORDENAMIENTO (Ranking)
+            const rankA = getTeamRank(teamNameA, classification);
+            const rankB = getTeamRank(teamNameB, classification);
+            let topTeam = teamNameA;
+            let botTeam = teamNameB;
+            let topRank = rankA;
+            let botRank = rankB;
+
+            if (teamNameA !== "TBD" && teamNameB !== "TBD") {
+                if (isSingleMatch) {
+                    if (rankB < rankA) { topTeam = teamNameB; botTeam = teamNameA; topRank = rankB; botRank = rankA; }
+                } else {
+                    if (rankB > rankA) { topTeam = teamNameB; botTeam = teamNameA; topRank = rankB; botRank = rankA; }
+                }
+            }
+
+            // BUSCAR DATOS REALES
             const allM = MATCH_RESULTS.filter(m => cfg.jornadas.includes(m.jornada));
-            const duels = []; const seen = new Set();
-            allM.forEach(m => {
-                const s1=getSel(m.local); const s2=getSel(m.visit); if(s1=='Desconocido') return;
-                const k=[s1,s2].sort().join('-');
-                if(!seen.has(k)) { seen.add(k); duels.push({s1,s2,series:allM.filter(x=>[getSel(x.local),getSel(x.visit)].sort().join('-')==k)}); }
-            });
-            const d = duels[index];
-            const div = document.createElement('div'); div.className = 'bracket-cell';
-            if(d) {
-                const r = calculateSeriesStats(d.series, d.s1, d.s2, cfg.type);
+            let real = null;
+            if(allM.length > 0 && topTeam !== "TBD" && botTeam !== "TBD") {
+                const found = finderFn(allM);
+                if(found) {
+                    const series = allM.filter(m => (getSel(m.local)==topTeam && getSel(m.visit)==botTeam) || (getSel(m.local)==botTeam && getSel(m.visit)==topTeam));
+                    const hasPlayed = series.some(m => !m.is_scheduled);
+                    if (hasPlayed) {
+                        real = calculateSeriesStats(series, topTeam, botTeam, cfg.type);
+                    }
+                }
+            }
+
+            const div = document.createElement('div'); 
+            div.className = 'bracket-cell';
+            const borderClass = isSingleMatch ? 'card-single' : 'card-double';
+
+            if(real) {
+                const {wA, wB, gA, gB, tA, tB, d} = real;
+                
+                // GANADOR
+                let winnerName = null;
+                if (isSingleMatch) {
+                    if (wA > wB || gA > gB) winnerName = tA;
+                    else if (wB > wA || gB > gA) winnerName = tB;
+                } else {
+                    if (wA > wB) winnerName = tA;
+                    else if (wB > wA) winnerName = tB;
+                    else if (gA > gB) winnerName = tA;
+                    else if (gB > gA) winnerName = tB;
+                }
+                
+                if (winnerName) {
+                    div.dataset.winner = winnerName;
+                    div.dataset.loser = (winnerName === tA) ? tB : tA;
+                }
+
+                // CORRECCIÓN: Volvemos a mostrar wA/wB como score principal SIEMPRE
                 div.innerHTML = `
-                    <div class="bracket-card">
-                        <div class="team-row"><span class="team-name ${r.wA>r.wB?'font-winner':''}">${r.tA}</span><span class="team-score">${r.wA}</span></div>
-                        <div class="team-row"><span class="team-name ${r.wB>r.wA?'font-winner':''}">${r.tB}</span><span class="team-score">${r.wB}</span></div>
-                        <div class="meta-info">${cfg.type=='aggregate' ? `Ida: ${r.d[0]||'-'} | Vta: ${r.d[1]||'-'}` : `Goles: ${r.gA}-${r.gB}`}</div>
+                    <div class="bracket-card ${borderClass}">
+                        <div class="team-row">
+                            <span class="team-name ${winnerName===tA?'font-winner':''}">${tA} <span class="team-rank">(${topRank<900?topRank:'-'})</span></span>
+                            <span class="team-score">${wA}</span>
+                        </div>
+                        <div class="team-row">
+                            <span class="team-name ${winnerName===tB?'font-winner':''}">${tB} <span class="team-rank">(${botRank<900?botRank:'-'})</span></span>
+                            <span class="team-score">${wB}</span>
+                        </div>
+                        <div class="meta-info">
+                            ${!isSingleMatch && wA===wB ? `<span class="text-red-500 font-bold text-xs mr-1">Def. Goles</span>` : ''}
+                            ${isSingleMatch ? `Goles: ${gA}-${gB}` : `Ida: ${d[0]||'-'} | Vta: ${d[1]||'-'}`}
+                        </div>
                     </div>`;
             } else {
-                div.innerHTML = `<div class="bracket-card tentative flex items-center justify-center h-16 text-xs text-gray-300">A definir</div>`;
+                const classA = topTeam.includes("Gan.") || topTeam.includes("Perd.") || topTeam.includes("Finalista") ? "text-gray-400 italic" : "text-gray-600 font-semibold";
+                const classB = botTeam.includes("Gan.") || botTeam.includes("Perd.") || botTeam.includes("Finalista") ? "text-gray-400 italic" : "text-gray-600 font-semibold";
+                
+                div.innerHTML = `
+                    <div class="bracket-card tentative ${borderClass}">
+                        <div class="team-row">
+                            <span class="team-name ${classA}">${topTeam} <span class="team-rank">(${topRank<900?topRank:'-'})</span></span>
+                        </div>
+                        <div class="team-row">
+                            <span class="team-name ${classB}">${botTeam} <span class="team-rank">(${botRank<900?botRank:'-'})</span></span>
+                        </div>
+                        <div class="meta-info">${proj.label}</div>
+                    </div>`;
             }
             return div;
         }
